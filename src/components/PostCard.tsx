@@ -1,56 +1,56 @@
 import type { Post } from '../data/posts'
+import { PostArtwork } from './PostArtwork'
 
 type PostCardProps = {
   post: Post
-  featured: boolean
   liked: boolean
   following: boolean
-  disabled: boolean
   onLike: (id: string) => void
   onFollow: (author: string) => void
 }
 
 const numberFormat = new Intl.NumberFormat('es-CL')
 
-export function PostCard({ post, featured, liked, following, disabled, onLike, onFollow }: PostCardProps) {
+export function PostCard({ post, liked, following, onLike, onFollow }: PostCardProps) {
   return (
-    <article className={`post ${featured ? 'post--featured' : ''}`}>
-      <div className={`post__art post__art--${post.artwork}`} aria-hidden="true">
-        <span className="post__art-shape" />
-        <span className="post__emoji">{post.emoji}</span>
+    <article className="post" aria-label={`Publicación de ${post.author}`}>
+      <div className="post__header">
+        <span className={`post__avatar post__avatar--${post.artwork}`} aria-hidden="true">{post.author[0]}</span>
+        <div className="post__identity">
+          <strong>{post.author}</strong>
+          <span>{post.category}</span>
+        </div>
+        <button
+          className={`follow-button ${following ? 'follow-button--active' : ''}`}
+          type="button"
+          aria-label={`${following ? 'Dejar de seguir' : 'Seguir'} a ${post.author}`}
+          aria-pressed={following}
+          onClick={() => onFollow(post.author)}
+        >
+          {following ? 'Siguiendo' : 'Seguir'}
+        </button>
       </div>
-      <div className="post__body">
-        <div className="post__topline">
-          <span className="post__category">{post.category}</span>
-          <button
-            className={`follow-button ${following ? 'follow-button--active' : ''}`}
-            type="button"
-            aria-label={`${following ? 'Dejar de seguir' : 'Seguir'} a ${post.author}`}
-            aria-pressed={following}
-            disabled={disabled}
-            onClick={() => onFollow(post.author)}
-          >
-            <span aria-hidden="true">{following ? '✓' : '+'}</span> {following ? 'Siguiendo' : 'Seguir'}
-          </button>
-        </div>
-        <h2 className="post__title">{post.title}</h2>
-        <p className="post__author">por @{post.author}</p>
-        <div className="post__actions">
-          <button
-            className={`like-button ${liked ? 'like-button--active' : ''}`}
-            type="button"
-            aria-label={`${liked ? 'Quitar Me gusta de' : 'Dar Me gusta a'} ${post.title}`}
-            aria-pressed={liked}
-            disabled={disabled}
-            onClick={() => onLike(post.id)}
-          >
-            <span className="like-button__heart" aria-hidden="true">♥</span>
-            <span>Me gusta</span>
-          </button>
-          <span className="post__likes" aria-label={`${numberFormat.format(post.likes + Number(liked))} Me gusta`}>
-            {numberFormat.format(post.likes + Number(liked))}
-          </span>
-        </div>
+
+      <div className="post__media"><PostArtwork post={post} /></div>
+
+      <div className="post__content">
+        <button
+          className={`like-button ${liked ? 'like-button--active' : ''}`}
+          type="button"
+          aria-label={`${liked ? 'Quitar Me gusta de' : 'Dar Me gusta a'} ${post.title}`}
+          aria-pressed={liked}
+          onClick={() => onLike(post.id)}
+        >
+          <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <path d="M16 28 4.7 16.6C-1 10.8 8 1.7 14 7.6l2 2 2-2c6-5.9 15 3.2 9.3 9L16 28Z" />
+          </svg>
+          <span className="sr-only">Me gusta</span>
+        </button>
+        <p className="post__likes" aria-label={`${numberFormat.format(post.likes + Number(liked))} Me gusta`}>
+          {numberFormat.format(post.likes + Number(liked))} Me gusta
+        </p>
+        <p className="post__caption"><strong>{post.author}</strong> {post.title}</p>
+        <span className="post__tag">#{post.category.toLowerCase()}</span>
       </div>
     </article>
   )

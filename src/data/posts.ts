@@ -17,7 +17,6 @@ export type Post = {
   category: Category
   likes: number
   saves: number
-  emoji: string
   artwork: 'game' | 'space' | 'music' | 'tech' | 'sport' | 'art' | 'film'
 }
 
@@ -29,7 +28,6 @@ export const posts: Post[] = [
     category: 'Videojuegos',
     likes: 842,
     saves: 128,
-    emoji: '🎮',
     artwork: 'game',
   },
   {
@@ -39,7 +37,6 @@ export const posts: Post[] = [
     category: 'Ciencia',
     likes: 815,
     saves: 204,
-    emoji: '🚀',
     artwork: 'space',
   },
   {
@@ -49,7 +46,6 @@ export const posts: Post[] = [
     category: 'Música',
     likes: 526,
     saves: 91,
-    emoji: '🎧',
     artwork: 'music',
   },
   {
@@ -59,7 +55,6 @@ export const posts: Post[] = [
     category: 'Tecnología',
     likes: 473,
     saves: 76,
-    emoji: '🤖',
     artwork: 'tech',
   },
   {
@@ -69,7 +64,6 @@ export const posts: Post[] = [
     category: 'Deportes',
     likes: 392,
     saves: 43,
-    emoji: '⚽',
     artwork: 'sport',
   },
   {
@@ -79,7 +73,6 @@ export const posts: Post[] = [
     category: 'Arte',
     likes: 328,
     saves: 112,
-    emoji: '🎨',
     artwork: 'art',
   },
   {
@@ -89,7 +82,6 @@ export const posts: Post[] = [
     category: 'Películas',
     likes: 667,
     saves: 135,
-    emoji: '🎬',
     artwork: 'film',
   },
   {
@@ -99,7 +91,6 @@ export const posts: Post[] = [
     category: 'Videojuegos',
     likes: 594,
     saves: 88,
-    emoji: '👾',
     artwork: 'game',
   },
 ]

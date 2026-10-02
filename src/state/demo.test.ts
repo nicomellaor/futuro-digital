@@ -1,107 +1,109 @@
 import { describe, expect, it } from 'vitest'
-import { createInitialState, demoReducer, getVisibleInteractions, type DemoState } from './demo'
+import { createInitialState, demoReducer, getTraceRoute, type DemoState } from './demo'
 import { getInterests, getRecommendedPostIds } from './recommendations'
 import { posts } from '../data/posts'
 
-function advance(state: DemoState, steps: number): DemoState {
-  for (let index = 0; index < steps; index++) state = demoReducer(state, { type: 'nextStep' })
+function advanceAll(state: DemoState): DemoState {
+  while (state.trace?.stepIndex !== null && state.trace) {
+    state = demoReducer(state, { type: 'advanceTrace', traceId: state.trace.id })
+  }
   return state
 }
 
-describe('recorrido de FuturoDigital', () => {
-  it('permite explorar el feed antes de Rayos X sin completar misiones', () => {
+describe('acciones libres y estado de la sesión', () => {
+  it('aplica Me gusta y Seguir al instante y permite deshacerlos sin Rayos X', () => {
     let state = createInitialState()
+    state = demoReducer(state, { type: 'toggleFollow', author: 'PixelZone' })
+    state = demoReducer(state, { type: 'toggleLike', postId: 'mundos-abiertos' })
+    expect(state.followedAuthors).toEqual(['PixelZone'])
+    expect(state.likedPostIds).toEqual(['mundos-abiertos'])
+    expect(state.trace).toBeNull()
     state = demoReducer(state, { type: 'toggleLike', postId: 'mundos-abiertos' })
     state = demoReducer(state, { type: 'toggleFollow', author: 'PixelZone' })
-    expect(state.likedPostIds).toEqual(['mundos-abiertos'])
-    expect(state.followedAuthors).toEqual(['PixelZone'])
-    expect(state.currentMissionIndex).toBe(0)
-    state = demoReducer(state, { type: 'toggleXray' })
-    expect(state.currentMissionIndex).toBe(1)
-    state = demoReducer(state, { type: 'toggleXray' })
-    expect(state.currentMissionIndex).toBe(1)
-    expect(state.likedPostIds).toEqual(['mundos-abiertos'])
-  })
-
-  it('guarda el Like en base de datos y actualiza la vista solo tras la respuesta', () => {
-    let state = demoReducer(createInitialState(), { type: 'toggleXray' })
-    state = demoReducer(state, { type: 'toggleLike', postId: 'marte' })
-    expect(state.trace).toMatchObject({ kind: 'interaction', action: 'like', step: 0 })
     expect(state.likedPostIds).toEqual([])
-    expect(demoReducer(state, { type: 'toggleLike', postId: 'playlist' })).toBe(state)
-    state = advance(state, 3)
-    expect(state.trace).toMatchObject({ step: 3 })
-    expect(state.likedPostIds).toEqual(['marte'])
-    expect(getVisibleInteractions(state).likedPostIds).toEqual([])
-    state = advance(state, 1)
-    expect(getVisibleInteractions(state).likedPostIds).toEqual(['marte'])
-    expect(state.currentMissionIndex).toBe(1)
-    state = advance(state, 1)
-    expect(state.currentMissionIndex).toBe(2)
-    expect(state.trace).toBeNull()
-  })
-
-  it('completa Seguir solo al terminar su recorrido y deja deshacer sin saltar misiones', () => {
-    let state = demoReducer(createInitialState(), { type: 'toggleXray' })
-    state = advance(demoReducer(state, { type: 'toggleLike', postId: 'marte' }), 5)
-    state = advance(demoReducer(state, { type: 'toggleFollow', author: 'PixelZone' }), 5)
-    expect(state.followedAuthors).toEqual(['PixelZone'])
-    expect(state.currentMissionIndex).toBe(3)
-    state = advance(demoReducer(state, { type: 'toggleFollow', author: 'PixelZone' }), 3)
-    expect(state.followedAuthors).toEqual([])
-    expect(getVisibleInteractions(state).followedAuthors).toEqual(['PixelZone'])
-    state = advance(state, 2)
-    expect(state.currentMissionIndex).toBe(3)
     expect(state.followedAuthors).toEqual([])
   })
 
-  it('permite acciones fuera de la misión actual sin adelantar el recorrido', () => {
-    let state = demoReducer(createInitialState(), { type: 'toggleXray' })
-    state = advance(demoReducer(state, { type: 'toggleFollow', author: 'PixelZone' }), 5)
-    expect(state.currentMissionIndex).toBe(1)
-    state = advance(demoReducer(state, { type: 'toggleLike', postId: 'marte' }), 5)
-    expect(state.currentMissionIndex).toBe(2)
-    state = advance(demoReducer(state, { type: 'toggleFollow', author: 'PixelZone' }), 5)
-    expect(state.currentMissionIndex).toBe(2)
-    state = advance(demoReducer(state, { type: 'toggleFollow', author: 'ScienceNow' }), 5)
-    expect(state.currentMissionIndex).toBe(3)
-  })
-
-  it('pide señales si se deshacen todos los intereses', () => {
-    let state = demoReducer(createInitialState(), { type: 'toggleXray' })
-    state = advance(demoReducer(state, { type: 'toggleLike', postId: 'marte' }), 5)
-    state = advance(demoReducer(state, { type: 'toggleFollow', author: 'PixelZone' }), 5)
-    state = advance(demoReducer(state, { type: 'toggleLike', postId: 'marte' }), 5)
-    state = advance(demoReducer(state, { type: 'toggleFollow', author: 'PixelZone' }), 5)
-    state = demoReducer(state, { type: 'recommend' })
-    expect(state.trace).toBeNull()
-    expect(state.recommendedPostIds).toBeNull()
-    expect(state.currentMissionIndex).toBe(3)
-    expect(state.notice).toContain('da Me gusta o sigue')
-  })
-
-  it('reordena con las señales presentes y permite ver el panorama y reiniciar', () => {
-    let state = demoReducer(createInitialState(), { type: 'toggleXray' })
-    state = advance(demoReducer(state, { type: 'toggleLike', postId: 'mundos-abiertos' }), 5)
-    state = advance(demoReducer(state, { type: 'toggleFollow', author: 'PixelZone' }), 5)
-    state = demoReducer(state, { type: 'recommend' })
-    expect(state.trace).toMatchObject({ kind: 'recommendation', step: 0 })
-    expect(state.recommendedPostIds).toBeNull()
-    state = advance(state, 2)
-    expect(state.recommendedPostIds?.slice(0, 2)).toEqual(['mundos-abiertos', 'pixel-art'])
-    expect(state.currentMissionIndex).toBe(3)
-    state = advance(state, 1)
-    expect(state.currentMissionIndex).toBe(4)
-    state = demoReducer(state, { type: 'openOverview' })
+  it('puede abrir el mapa desde el inicio y volver sin borrar la sesión', () => {
+    let state = demoReducer(createInitialState(), { type: 'openOverview' })
     expect(state.view).toBe('overview')
     state = demoReducer(state, { type: 'closeOverview' })
-    expect(state.view).toBe('feed')
-    expect(demoReducer(state, { type: 'reset' })).toEqual(createInitialState())
+    state = demoReducer(state, { type: 'toggleLike', postId: 'marte' })
+    state = demoReducer(state, { type: 'toggleXray' })
+    expect(state.likedPostIds).toEqual(['marte'])
+    expect(state.xrayEnabled).toBe(true)
+    state = demoReducer(state, { type: 'toggleXray' })
+    expect(state.likedPostIds).toEqual(['marte'])
+  })
+
+  it('ilumina el trayecto correcto sin demorar el cambio del feed', () => {
+    let state = demoReducer(createInitialState(), { type: 'toggleXray' })
+    state = demoReducer(state, { type: 'toggleLike', postId: 'marte' })
+    expect(state.likedPostIds).toEqual(['marte'])
+    expect(state.trace).toMatchObject({ kind: 'like', intent: 'add', stepIndex: 0 })
+    expect(getTraceRoute(state.trace!)).toEqual(['frontend', 'api', 'backend', 'database', 'frontend'])
+    state = advanceAll(state)
+    expect(state.trace?.stepIndex).toBeNull()
+    expect(state.likedPostIds).toEqual(['marte'])
+    state = demoReducer(state, { type: 'toggleLike', postId: 'marte' })
+    expect(state.trace).toMatchObject({ kind: 'like', intent: 'remove', stepIndex: 0 })
+    expect(state.likedPostIds).toEqual([])
+  })
+
+  it('conserva todas las pulsaciones rápidas y descarta temporizadores anteriores', () => {
+    let state = demoReducer(createInitialState(), { type: 'toggleXray' })
+    state = demoReducer(state, { type: 'toggleLike', postId: 'marte' })
+    const oldId = state.trace!.id
+    state = demoReducer(state, { type: 'toggleFollow', author: 'PixelZone' })
+    expect(state.likedPostIds).toEqual(['marte'])
+    expect(state.followedAuthors).toEqual(['PixelZone'])
+    expect(state.trace).toMatchObject({ kind: 'follow', targetId: 'PixelZone', stepIndex: 0 })
+    expect(demoReducer(state, { type: 'advanceTrace', traceId: oldId })).toBe(state)
+    const newId = state.trace!.id
+    state = demoReducer(state, { type: 'reset' })
+    state = demoReducer(state, { type: 'toggleXray' })
+    state = demoReducer(state, { type: 'toggleLike', postId: 'playlist' })
+    expect(demoReducer(state, { type: 'advanceTrace', traceId: newId })).toBe(state)
+    expect(state.trace?.stepIndex).toBe(0)
+    expect(state.likedPostIds).toEqual(['playlist'])
+  })
+
+  it('permite salir de Rayos X y abrir el mapa mientras una acción se explica', () => {
+    let state = demoReducer(createInitialState(), { type: 'toggleXray' })
+    state = demoReducer(state, { type: 'toggleFollow', author: 'ScienceNow' })
+    const id = state.trace!.id
+    state = demoReducer(state, { type: 'toggleXray' })
+    expect(state.trace).toBeNull()
+    expect(state.followedAuthors).toEqual(['ScienceNow'])
+    state = demoReducer(state, { type: 'toggleXray' })
+    state = demoReducer(state, { type: 'toggleLike', postId: 'marte' })
+    state = demoReducer(state, { type: 'openOverview' })
+    expect(state.view).toBe('overview')
+    expect(state.trace).toBeNull()
+    expect(state.likedPostIds).toEqual(['marte'])
+    expect(demoReducer(state, { type: 'advanceTrace', traceId: id })).toBe(state)
+  })
+
+  it('reordena el feed al pulsar y no inventa señales cuando no las hay', () => {
+    let state = demoReducer(createInitialState(), { type: 'recommend' })
+    expect(state.recommendedPostIds).toBeNull()
+    expect(state.trace).toBeNull()
+    expect(state.notice).toContain('da Me gusta o sigue')
+    state = demoReducer(state, { type: 'toggleLike', postId: 'mundos-abiertos' })
+    state = demoReducer(state, { type: 'toggleFollow', author: 'PixelZone' })
+    state = demoReducer(state, { type: 'toggleXray' })
+    state = demoReducer(state, { type: 'recommend' })
+    expect(state.recommendedPostIds?.slice(0, 2)).toEqual(['mundos-abiertos', 'pixel-art'])
+    expect(state.trace).toMatchObject({ kind: 'recommend', stepIndex: 0 })
+    expect(getTraceRoute(state.trace!)).toEqual(['frontend', 'api', 'backend', 'database', 'algorithm', 'frontend'])
+    state = demoReducer(state, { type: 'completeTrace', traceId: state.trace!.id })
+    expect(state.trace?.stepIndex).toBeNull()
+    expect(state.recommendedPostIds?.[1]).toBe('pixel-art')
   })
 })
 
 describe('reglas de recomendaciones', () => {
-  it('suma Likes y seguidos sin multiplicar el mismo autor por sus publicaciones', () => {
+  it('suma Likes y seguidos una sola vez por categoría y conserva los empates', () => {
     const interests = getInterests(['mundos-abiertos'], ['PixelZone'])
     expect(interests.find(({ category }) => category === 'Videojuegos')?.score).toBe(3)
     expect(interests.find(({ category }) => category === 'Música')?.score).toBe(0)

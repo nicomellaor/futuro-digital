@@ -1,181 +1,101 @@
 import { posts } from '../data/posts'
-import { currentUser, missions, type DemoState, type InteractionTrace, type Trace } from '../state/demo'
+import { currentUser, getTraceRoute, type ArchitectureNode, type Trace } from '../state/demo'
 
-const layers = [
-  { icon: '📱', title: 'Frontend', description: 'Lo que ves y tocas' },
-  { icon: '🌐', title: 'API', description: 'El mensaje que viaja' },
-  { icon: '⚙️', title: 'Backend', description: 'Las reglas de la aplicación' },
-  { icon: '🗄️', title: 'Base de datos', description: 'Lo que la aplicación recuerda' },
+const nodes: { id: ArchitectureNode | 'user'; title: string; description: string; symbol: string }[] = [
+  { id: 'user', title: 'Usuario', description: 'Toca una publicación', symbol: 'A' },
+  { id: 'frontend', title: 'Frontend', description: 'Lo que ves y tocas', symbol: '▣' },
+  { id: 'api', title: 'API', description: 'Lleva el mensaje', symbol: '↗' },
+  { id: 'backend', title: 'Backend', description: 'Aplica las reglas', symbol: '⚙' },
+  { id: 'database', title: 'Base de datos', description: 'Recuerda tus acciones', symbol: '▤' },
+  { id: 'algorithm', title: 'Algoritmo', description: 'Se usa para ordenar el feed', symbol: '✧' },
 ]
 
-function interactionCopy(trace: InteractionTrace) {
-  const post = trace.action === 'like' ? posts.find((item) => item.id === trace.targetId) : null
+function getCopy(trace: Trace) {
+  if (trace.kind === 'recommend') return [
+    'Alex pidió mejorar su feed.',
+    'La API lleva la petición al servidor.',
+    'El backend reúne las señales de Alex.',
+    'Se consultan Me gusta y creadores seguidos.',
+    'Una regla ordena las categorías: +1 por Me gusta, +2 por autor seguido.',
+    'El feed ya muestra primero tus intereses.',
+  ][trace.stepIndex ?? 0]
+
+  const post = trace.kind === 'like' ? posts.find((item) => item.id === trace.targetId) : null
   const subject = post ? `«${post.title}»` : `@${trace.targetId}`
   const adding = trace.intent === 'add'
-  const operation = trace.action === 'like'
-    ? adding ? 'dio Me gusta a' : 'quitó Me gusta de'
-    : adding ? 'siguió a' : 'dejó de seguir a'
-  const request = trace.action === 'like'
-    ? adding ? 'POST /likes' : 'DELETE /likes'
-    : adding ? 'POST /follow' : 'DELETE /follow'
-
+  const action = trace.kind === 'like' ? adding ? 'dio Me gusta a' : 'quitó Me gusta de' : adding ? 'siguió a' : 'dejó de seguir a'
+  const endpoint = trace.kind === 'like' ? '/likes' : '/follow'
   return [
-    { title: 'Frontend', text: `Detectamos que ${currentUser} ${operation} ${subject}.` },
-    { title: 'API', text: 'El frontend envía un mensaje para contarle al servidor qué ocurrió.', code: request },
-    { title: 'Backend', text: `El servidor comprueba quién es ${currentUser} y ${post ? 'a qué publicación' : 'a qué creador'} se refiere la acción.` },
-    { title: 'Base de datos', text: adding
-      ? 'Se añade una fila para recordar esta acción.'
-      : 'Se elimina la fila porque deshiciste la acción.' },
-    { title: 'Respuesta', text: post
-      ? 'La respuesta vuelve: base de datos ↑ backend ↑ API ↑ frontend. Ahora cambia el contador.'
-      : 'La respuesta vuelve: base de datos ↑ backend ↑ API ↑ frontend. Ahora ves el nuevo estado.' },
-  ][trace.step]
+    `${currentUser} ${action} ${subject}.`,
+    `La API envía ${adding ? 'POST' : 'DELETE'} ${endpoint}.`,
+    `El backend comprueba quién y ${post ? 'qué publicación' : 'qué creador'}.`,
+    adding ? 'Se guarda esta relación para recordarla.' : 'Se elimina la relación guardada.',
+    post ? 'El feed ya muestra el nuevo contador.' : 'El feed ya muestra el nuevo seguimiento.',
+  ][trace.stepIndex ?? 0]
 }
 
-function getLayerStatus(index: number, trace: Trace | null): string {
-  if (!trace || trace.kind !== 'interaction') return 'idle'
-  if (trace.step === 4) return index === 0 ? 'active' : 'visited'
-  return index === trace.step ? 'active' : index < trace.step ? 'visited' : 'idle'
+function getSummary(trace: Trace): string {
+  if (trace.kind === 'recommend') return 'El feed se ordenó según tus intereses.'
+  if (trace.kind === 'follow') return trace.intent === 'add'
+    ? `Ahora sigues a @${trace.targetId}.` : `Dejaste de seguir a @${trace.targetId}.`
+  const post = posts.find((item) => item.id === trace.targetId)
+  return `${trace.intent === 'add' ? 'Me gusta añadido' : 'Me gusta eliminado'} en «${post?.title ?? 'la publicación'}».`
 }
 
-type XrayPanelProps = {
-  state: DemoState
-  onNext: () => void
-  onOverview: () => void
+function getDataRow(trace: Trace): string {
+  if (trace.kind === 'recommend') return 'Alex | Me gusta + seguidos → intereses'
+  if (trace.kind === 'follow') return `Alex | sigue a | ${trace.targetId}`
+  const post = posts.find((item) => item.id === trace.targetId)
+  return `Alex | ${post?.category ?? 'publicación'} | ♥`
 }
 
-export function XrayPanel({ state, onNext, onOverview }: XrayPanelProps) {
-  const { trace } = state
-  const mission = missions[state.currentMissionIndex]
-  const interaction = trace?.kind === 'interaction' ? trace : null
-  const recommendation = trace?.kind === 'recommendation' ? trace : null
-  const stepCopy = interaction ? interactionCopy(interaction) : null
-  const lastStep = interaction ? 4 : 2
-  const activeRow = interaction?.step === 3 ? interaction : null
+export function XrayPanel({ trace }: { trace: Trace | null }) {
+  const route = trace ? getTraceRoute(trace) : []
+  const active = trace?.stepIndex === null || !trace ? null : route[trace.stepIndex]
+  const visited = trace ? (trace.stepIndex === null ? route : route.slice(0, trace.stepIndex)) : []
+  const dataVisible = trace && (trace.stepIndex === 3 || trace.stepIndex === null && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
 
   return (
-    <aside className="xray" aria-label="Modo Rayos X">
-      <div className="xray__heading">
-        <span className="xray__eye" aria-hidden="true">◉</span>
-        <h2>¿Qué está ocurriendo?</h2>
-        <p>Ahora puedes ver las piezas que trabajan detrás de cada acción.</p>
+    <aside className="xray" aria-label="Mapa del Modo Rayos X">
+      <div className="xray__header">
+        <span className="xray__mark" aria-hidden="true">◎</span>
+        <div><h2>Así funciona</h2><p>Lo que ocurre detrás de cada toque.</p></div>
       </div>
 
-      <section className="mission" aria-label="Misiones de la demostración">
-        <div className="mission__progress" role="progressbar" aria-label="Misiones completadas" aria-valuemin={0} aria-valuemax={missions.length} aria-valuenow={state.currentMissionIndex} aria-valuetext={`${state.currentMissionIndex} de ${missions.length} misiones completadas`}>
-          {missions.map((item, index) => (
-            <span
-              className={`mission__segment ${index < state.currentMissionIndex ? 'mission__segment--done' : ''}`}
-              key={item.id}
-              aria-hidden="true"
-            />
-          ))}
-        </div>
-        {mission ? (
-          <>
-            <span className="mission__count" aria-live="polite">Misión {state.currentMissionIndex + 1} de {missions.length}</span>
-            <h3>{mission.title}</h3>
-            <p>{mission.instruction}</p>
-          </>
-        ) : (
-          <>
-            <span className="mission__count">{missions.length} de {missions.length} completadas</span>
-            <h3>Ya viste el viaje completo</h3>
-            <p>Ahora junta todas las piezas en un solo mapa.</p>
-            {!trace && <button className="overview-button" type="button" onClick={onOverview}>Ver panorama completo</button>}
-          </>
-        )}
-      </section>
-
-      {trace && (
-        <section className="trace" aria-label="Recorrido de la acción">
-          <span className="trace__count">Paso {trace.step + 1} de {lastStep + 1}</span>
-          <div className="trace__content" aria-live="polite" aria-atomic="true" key={`${trace.kind}-${trace.step}`}>
-            {stepCopy && <>
-              <h3>{stepCopy.title}</h3>
-              <p>{stepCopy.text}</p>
-              {'code' in stepCopy && <code className="trace__code">{stepCopy.code}</code>}
-            </>}
-            {recommendation && <>
-              <h3>{['Tus datos', 'Algoritmo', 'Nuevo feed'][recommendation.step]}</h3>
-              <p>{[
-                'El sistema mira tus Me gusta y a quiénes sigues. Esas acciones son pistas sobre tus intereses.',
-                'Una regla suma puntos por categoría: +1 por Me gusta y +2 por cada autor seguido que publique sobre ella.',
-                'Las publicaciones con categorías de mayor puntuación aparecen primero. El resto conserva su orden.',
-              ][recommendation.step]}</p>
-            </>}
-          </div>
-          {recommendation && <>
-            <div className="recommendation-path" aria-label="Tus datos, algoritmo, nuevo feed">
-              {['Tus datos', 'Algoritmo', 'Nuevo feed'].map((step, index) => (
-                <span className={index === recommendation.step ? 'recommendation-path__active' : ''} key={step}>{step}</span>
-              ))}
-            </div>
-            <div className="interests">
-              <strong>Intereses detectados</strong>
-              {recommendation.interests.map(({ category, score }) => (
-                <div className="interests__row" key={category}>
-                  <span>{category}</span>
-                  <span className={score ? 'interests__score interests__score--active' : 'interests__score'}>+{score}</span>
-                </div>
-              ))}
-            </div>
-          </>}
-          <button className="trace__next" type="button" onClick={onNext}>
-            {trace.step === lastStep ? 'Terminar recorrido' : 'Siguiente paso'}
-          </button>
-          <p className="trace__hint">Termina el recorrido para seguir interactuando o salir de Rayos X.</p>
-        </section>
-      )}
-
-      {(!trace || interaction) && <ol className={`xray__layers ${interaction?.step === 4 ? 'xray__layers--return' : ''}`} aria-label="Recorrido Frontend, API, Backend y Base de datos">
-        {layers.map((layer, index) => (
-          <li className={`xray__layer xray__layer--${getLayerStatus(index, trace)}`} aria-current={getLayerStatus(index, trace) === 'active' ? 'step' : undefined} key={layer.title}>
-            <span className="xray__number">{index + 1}</span>
-            <span className="xray__layer-icon" aria-hidden="true">{layer.icon}</span>
-            <span>
-              <strong>{layer.title}</strong>
-              <small>{layer.description}</small>
-            </span>
-            {getLayerStatus(index, trace) === 'active' && <span className="xray__signal" aria-hidden="true" />}
+      <ol className="xray__diagram" aria-label="Usuario, Frontend, API, Backend, Base de datos y Algoritmo">
+        {nodes.map((node) => {
+          const isActive = active === node.id
+          const isVisited = node.id === 'user' ? Boolean(trace) : visited.includes(node.id as ArchitectureNode)
+          return <li
+            className={`xray__node ${isActive ? 'xray__node--active' : isVisited ? 'xray__node--visited' : ''}`}
+            aria-current={isActive ? 'step' : undefined}
+            key={node.id}
+          >
+            <span className="xray__symbol" aria-hidden="true">{node.symbol}</span>
+            <span className="xray__node-copy"><strong>{node.title}</strong><small>{node.description}</small></span>
+            {node.id === 'database' && dataVisible && <span className="xray__data-row" role="status">
+              {trace.kind !== 'recommend' && trace.intent === 'remove' ? 'Se eliminó: ' : ''}{getDataRow(trace)}
+            </span>}
+            {node.id === 'algorithm' && trace?.kind === 'recommend' && (trace.stepIndex === 4 || trace.stepIndex === null) && <span className="xray__interests">
+              {trace.interests.filter(({ score }) => score > 0).map(({ category, score }) => `${category} +${score}`).join('  ·  ')}
+            </span>}
           </li>
-        ))}
-      </ol>}
-      {interaction?.step === 4 && <p className="xray__return">↑ La respuesta regresó hasta el frontend</p>}
+        })}
+      </ol>
 
-      <section className="data-tables" aria-label="Datos guardados en esta sesión">
-        <h3>Datos de {currentUser}</h3>
-        <div className="data-table">
-          <h4>Me gusta</h4>
-          <table aria-label="Me gusta guardados">
-            <thead><tr><th>Usuario</th><th>Publicación</th><th>Like</th></tr></thead>
-            <tbody>
-              {state.likedPostIds.map((id) => {
-                const post = posts.find((item) => item.id === id)
-                return post && <tr className={activeRow?.action === 'like' && activeRow.targetId === id ? 'data-table__new' : ''} key={id}>
-                  <td>{currentUser}</td><td>{post.title}</td><td>♥</td>
-                </tr>
-              })}
-              {state.likedPostIds.length === 0 && <tr><td colSpan={3} className="data-table__empty">Todavía no hay Me gusta.</td></tr>}
-            </tbody>
-          </table>
-          {activeRow?.action === 'like' && activeRow.intent === 'remove' && <p className="data-table__removed">Fila eliminada: {posts.find((post) => post.id === activeRow.targetId)?.title}</p>}
-        </div>
-        <div className="data-table">
-          <h4>Usuarios seguidos</h4>
-          <table aria-label="Autores seguidos">
-            <thead><tr><th>Usuario</th><th>Sigue a</th></tr></thead>
-            <tbody>
-              {state.followedAuthors.map((author) => <tr className={activeRow?.action === 'follow' && activeRow.targetId === author ? 'data-table__new' : ''} key={author}>
-                <td>{currentUser}</td><td>@{author}</td>
-              </tr>)}
-              {state.followedAuthors.length === 0 && <tr><td colSpan={2} className="data-table__empty">Todavía no sigues a nadie.</td></tr>}
-            </tbody>
-          </table>
-          {activeRow?.action === 'follow' && activeRow.intent === 'remove' && <p className="data-table__removed">Fila eliminada: {currentUser} → @{activeRow.targetId}</p>}
-        </div>
-      </section>
-      <p className="xray__note">Esta vista representa sistemas simulados localmente, sin servidor ni base de datos real.</p>
+      <div className="xray__explanation" aria-live="polite" aria-atomic="true">
+        {!trace && <p>Prueba Me gusta, Seguir o Mejorar mis recomendaciones para ver el recorrido.</p>}
+        {trace?.stepIndex !== null && trace && <>
+          <span className="xray__step">{active === 'frontend' && trace.stepIndex === route.length - 1 ? 'Respuesta al frontend' : nodes.find((node) => node.id === active)?.title}</span>
+          <p key={`${trace.id}-${trace.stepIndex}`}>{getCopy(trace)}</p>
+        </>}
+        {trace?.stepIndex === null && trace && <>
+          <span className="xray__step">Última acción</span>
+          <p>{getSummary(trace)}</p>
+          <small>Recorrido: {route.map((node) => nodes.find((item) => item.id === node)?.title).join(' → ')}</small>
+        </>}
+      </div>
+      <p className="xray__note">Una simulación local: aquí no se usa un servidor real.</p>
     </aside>
   )
 }

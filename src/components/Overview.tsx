@@ -8,9 +8,9 @@ export function Overview({ onBack, onReset }: OverviewProps) {
     <main className="overview" id="inicio">
       <button className="overview__back" type="button" onClick={onBack}>← Volver al feed</button>
       <div className="overview__intro">
-        <span className="overview__eyebrow">Ya viste lo que sucede al tocar un botón</span>
-        <h1 id="overview-title" tabIndex={-1}>Todo está conectado<span className="feed__dot">.</span></h1>
-        <p>Una aplicación se construye uniendo piezas distintas. Cada una tiene un trabajo.</p>
+        <span className="overview__eyebrow">El mapa de FuturoDigital</span>
+        <h1 id="overview-title" tabIndex={-1}>Así se conecta todo.</h1>
+        <p>Detrás de cada toque hay piezas distintas haciendo su trabajo.</p>
       </div>
       <section className="architecture" aria-label="Arquitectura de FuturoDigital: usuario, frontend, API, backend, base de datos y algoritmo">
         <div className="architecture__node architecture__node--person"><span aria-hidden="true">👤</span><strong>Usuario</strong><small>Toca un botón</small></div>

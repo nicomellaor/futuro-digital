@@ -3,11 +3,13 @@ import { PostCard } from './components/PostCard'
 import { Overview } from './components/Overview'
 import { XrayPanel } from './components/XrayPanel'
 import { posts } from './data/posts'
-import { createInitialState, currentUser, demoReducer, getVisibleInteractions, missions } from './state/demo'
+import { createInitialState, currentUser, demoReducer } from './state/demo'
 
 function App() {
   const [state, dispatch] = useReducer(demoReducer, undefined, createInitialState)
   const previousView = useRef(state.view)
+  const previousOrder = useRef(state.recommendedPostIds)
+
   useEffect(() => {
     if (previousView.current === state.view) return
     previousView.current = state.view
@@ -15,9 +17,31 @@ function App() {
     document.body.scrollTop = 0
     document.getElementById(state.view === 'overview' ? 'overview-title' : 'feed-title')?.focus()
   }, [state.view])
-  const visible = getVisibleInteractions(state)
+
+  useEffect(() => {
+    if (state.recommendedPostIds && previousOrder.current !== state.recommendedPostIds && state.view === 'feed') {
+      document.getElementById('feed-title')?.scrollIntoView?.({ behavior: 'instant', block: 'start' })
+    }
+    previousOrder.current = state.recommendedPostIds
+  }, [state.recommendedPostIds, state.view])
+
+  const trace = state.trace
+  useEffect(() => {
+    if (!state.xrayEnabled || state.view !== 'feed' || !trace || trace.stepIndex === null) return
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      dispatch({ type: 'completeTrace', traceId: trace.id })
+      return
+    }
+    const timer = window.setTimeout(() => dispatch({ type: 'advanceTrace', traceId: trace.id }), 460)
+    return () => window.clearTimeout(timer)
+  }, [state.xrayEnabled, state.view, trace])
+
+  const postById = new Map(posts.map((post) => [post.id, post]))
   const orderedPosts = state.recommendedPostIds
-    ? state.recommendedPostIds.map((id) => posts.find((post) => post.id === id)!).filter(Boolean)
+    ? state.recommendedPostIds.flatMap((id) => {
+      const post = postById.get(id)
+      return post ? [post] : []
+    })
     : posts
 
   return (
@@ -25,65 +49,60 @@ function App() {
       <header className="site-header">
         <div className="site-header__inner">
           <a className="brand" href="#inicio" aria-label="FuturoDigital, ir al inicio">
-            <span className="brand__mark" aria-hidden="true">✳</span>
-            <span>Futuro<span className="brand__accent">Digital</span></span>
+            futuro<span>digital</span><span className="brand__dot">.</span>
           </a>
-          <div className="site-header__actions">
+          <nav className="site-header__actions" aria-label="Controles de la demostración">
+            {state.view === 'overview' ? (
+              <button className="header-link" type="button" onClick={() => dispatch({ type: 'closeOverview' })}>Volver al feed</button>
+            ) : <>
+              <button className="header-link" type="button" onClick={() => dispatch({ type: 'openOverview' })}>Ver mapa completo</button>
+              <button
+                className={`xray-button ${state.xrayEnabled ? 'xray-button--active' : ''}`}
+                type="button"
+                aria-pressed={state.xrayEnabled}
+                onClick={() => dispatch({ type: 'toggleXray' })}
+              >
+                <span className="xray-button__icon" aria-hidden="true">◎</span>
+                {state.xrayEnabled ? 'Cerrar Rayos X' : 'Modo Rayos X'}
+              </button>
+            </>}
             <button className="reset-button" type="button" onClick={() => dispatch({ type: 'reset' })}>
-              Reiniciar demo
+              <span aria-hidden="true">↺</span><span className="reset-button__label">Reiniciar demo</span>
             </button>
-            {state.view === 'overview' ? <button className="xray-button" type="button" onClick={() => dispatch({ type: 'closeOverview' })}>Volver al feed</button> : <button
-              className={`xray-button ${state.xrayEnabled ? 'xray-button--active' : ''}`}
-              type="button"
-              aria-pressed={state.xrayEnabled}
-              disabled={Boolean(state.trace)}
-              title={state.trace ? 'Termina el recorrido antes de salir de Rayos X' : undefined}
-              onClick={() => dispatch({ type: 'toggleXray' })}
-            >
-              <span aria-hidden="true">◉</span>
-              {state.xrayEnabled ? 'Desactivar Rayos X' : 'Activar Modo Rayos X'}
-            </button>}
-            <span className="avatar" title={`Sesión de ${currentUser}`} aria-label={`Sesión de ${currentUser}`}>
-              A
-            </span>
-          </div>
+            <span className="avatar" title={`Sesión de ${currentUser}`} aria-label={`Sesión de ${currentUser}`}>A</span>
+          </nav>
         </div>
       </header>
 
-      {state.view === 'overview' ? <Overview onBack={() => dispatch({ type: 'closeOverview' })} onReset={() => dispatch({ type: 'reset' })} /> : <main id="inicio" className={`main-layout ${state.xrayEnabled ? 'main-layout--xray' : ''}`}>
-        <section className="feed" aria-labelledby="feed-title">
-          <div className="feed__heading">
-            <div>
-              <h1 id="feed-title" tabIndex={-1}>Para ti<span className="feed__dot">.</span></h1>
-              <p>Ideas que valen un segundo scroll.</p>
+      {state.view === 'overview' ? (
+        <Overview onBack={() => dispatch({ type: 'closeOverview' })} onReset={() => dispatch({ type: 'reset' })} />
+      ) : (
+        <main id="inicio" className={`main-layout ${state.xrayEnabled ? 'main-layout--xray' : ''}`}>
+          <section className="feed" aria-labelledby="feed-title">
+            <div className="feed__intro">
+              <h1 id="feed-title" tabIndex={-1}>Para ti</h1>
+              <button className="recommend-button" type="button" onClick={() => dispatch({ type: 'recommend' })}>
+                <span aria-hidden="true">✧</span> Mejorar mis recomendaciones
+              </button>
             </div>
-            <span className="feed__count">{posts.length} descubrimientos</span>
-          </div>
-          <div className="feed__tools">
-            <button className="recommend-button" type="button" disabled={Boolean(state.trace)} onClick={() => dispatch({ type: 'recommend' })}>
-              <span aria-hidden="true">✨</span> Mejorar mis recomendaciones
-            </button>
-            {state.recommendedPostIds && <span className="feed__updated">Feed ordenado para ti</span>}
-            {state.currentMissionIndex === missions.length && !state.xrayEnabled && <button className="feed__overview" type="button" onClick={() => dispatch({ type: 'openOverview' })}>Ver panorama completo</button>}
-          </div>
-          {state.notice && <p className="feed__notice" role="status">{state.notice}</p>}
-          <div className="feed__grid">
-            {orderedPosts.map((post, index) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                featured={index === 0}
-                liked={visible.likedPostIds.includes(post.id)}
-                following={visible.followedAuthors.includes(post.author)}
-                disabled={Boolean(state.trace)}
-                onLike={(postId) => dispatch({ type: 'toggleLike', postId })}
-                onFollow={(author) => dispatch({ type: 'toggleFollow', author })}
-              />
-            ))}
-          </div>
-        </section>
-        {state.xrayEnabled && <XrayPanel state={state} onNext={() => dispatch({ type: 'nextStep' })} onOverview={() => dispatch({ type: 'openOverview' })} />}
-      </main>}
+            {state.notice && <p className="feed__notice" role="status">{state.notice}</p>}
+            {state.recommendedPostIds && <p className="feed__updated" role="status">Contenido ordenado según tus intereses</p>}
+            <div className="feed__stream">
+              {orderedPosts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  liked={state.likedPostIds.includes(post.id)}
+                  following={state.followedAuthors.includes(post.author)}
+                  onLike={(postId) => dispatch({ type: 'toggleLike', postId })}
+                  onFollow={(author) => dispatch({ type: 'toggleFollow', author })}
+                />
+              ))}
+            </div>
+          </section>
+          {state.xrayEnabled && <XrayPanel trace={state.trace} />}
+        </main>
+      )}
     </div>
   )
 }

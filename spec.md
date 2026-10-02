@@ -1,556 +1,125 @@
-# FuturoDigital — Aplicación interactiva para explicar programación y TI
+# FuturoDigital — Especificación de la experiencia
 
 ## 1. Propósito
 
-Construir una aplicación web breve, visual e interactiva destinada a una charla de orientación vocacional para estudiantes de enseñanza media.
+Crear una aplicación web breve para una charla de orientación vocacional con estudiantes de enseñanza media. Debe responder visualmente: **«¿Qué ocurre dentro de una aplicación cuando presiono un botón?»**
 
-La aplicación debe demostrar, de forma simplificada, qué ocurre detrás de una aplicación digital cotidiana y permitir introducir conceptos como:
+El estudiante debe reconocer frontend, API, backend, base de datos y algoritmo como piezas conectadas de un producto cotidiano. La experiencia prioriza familiaridad, interacción y comprensión visual sobre exactitud técnica exhaustiva.
 
-- frontend;
-- backend;
-- API;
-- base de datos;
-- lógica de programación;
-- algoritmos;
-- inteligencia artificial.
+## 2. Concepto y alcance
 
-La experiencia debe priorizar la **comprensión visual y la interacción**, no la precisión técnica exhaustiva.
+FuturoDigital es una red social ficticia de descubrimiento de publicaciones sobre videojuegos, música, ciencia, tecnología, deportes, arte y películas. Funciona con datos locales y sin Internet; no reproduce audio ni video.
 
----
+En esta versión, Alex puede:
 
-# 2. Concepto de la aplicación
+- dar y quitar Me gusta a una publicación;
+- seguir y dejar de seguir a un creador;
+- mejorar sus recomendaciones según sus interacciones;
+- activar o desactivar **Modo Rayos X** para ver el funcionamiento interno;
+- abrir cuando quiera **Ver mapa completo** y reiniciar la demostración.
 
-## FuturoDigital
+No hay objetivos obligatorios ni orden prescrito para probar esas acciones.
 
-FuturoDigital es una red social ficticia de descubrimiento de contenido.
+## 3. Feed en modo normal
 
-La interfaz presenta publicaciones relacionadas con temas familiares para adolescentes:
+La primera impresión debe ser la de una red social conocida, **no** la de una herramienta educativa. El feed presenta una única columna centrada de publicaciones apiladas, con scroll vertical continuo: al bajar aparece la siguiente publicación. No hay cuadrícula, tarjeta destacada, carrusel ni ajuste forzado de una publicación por pantalla.
 
-- videojuegos;
-- música;
-- deportes;
-- tecnología;
-- películas y series;
-- arte;
-- ciencia.
+Cada publicación tiene una composición familiar:
 
-Cada publicación consiste únicamente en:
+1. Encabezado compacto con avatar ficticio, autor y control **Seguir / Siguiendo**.
+2. Ilustración propia y predominante, preferentemente vertical (aproximadamente 4:5), sin depender de multimedia externa.
+3. Fila de interacción con el corazón de **Me gusta**.
+4. Contador de Me gusta y texto breve que integra título y categoría.
 
-- una miniatura o ilustración;
-- título;
-- autor;
-- categoría;
-- número de likes;
-- botones de interacción.
+Las publicaciones usan la misma estructura y anchura. En laptop/proyector el feed permanece legible y centrado; en móvil ocupa el ancho disponible sin perder el scroll familiar. Las acciones se aplican inmediatamente también antes de activar Rayos X. El control para activar Rayos X debe estar siempre a la vista en el feed.
 
-No existe reproducción real de audio o video.
+## 4. Dirección visual
 
-Ejemplo:
+La interfaz completa utiliza **un tema claro uniforme**, incluido Rayos X y la vista de mapa completo: fondo claro, superficies blancas, texto oscuro, divisores sutiles y un acento principal reservado a controles y etapas activas. El corazón puede usar un color propio para expresar su estado.
 
-> 🎮 **Los videojuegos más esperados del año**  
-> PixelZone  
-> ❤️ 842 · 🔖 Guardar
+La identidad de FuturoDigital debe surgir de la estructura reconocible de la publicación y de ilustraciones locales originales, no de una galería de tarjetas, bloques de gradientes multicolor o un panel técnico oscuro. No se necesitan imágenes remotas ni una copia literal de marcas, logotipos o fotografías de otra red social.
 
-El usuario puede interactuar con las publicaciones mediante:
+## 5. Modo Rayos X libre
 
-- ❤️ Me gusta
-- 🔖 Guardar
-- ➕ Seguir
-- ✨ Recomendar contenido
-- 🔄 Actualizar feed
-
-Estas acciones permiten explicar diferentes componentes del software.
-
----
-
-# 3. Objetivo pedagógico central
-
-La aplicación debe responder visualmente a la pregunta:
-
-> **“¿Qué ocurre dentro de una aplicación cuando yo presiono un botón?”**
-
-La interfaz normal representa lo que ve un usuario.
-
-Un **Modo Rayos X** permite visualizar los sistemas internos responsables de cada acción.
-
----
-
-# 4. Modo normal
-
-Al iniciar la aplicación se presenta un feed simple.
-
-Ejemplo:
+Al activarlo, el feed sigue siendo utilizable y aparece a su lado un diagrama compacto de la arquitectura en pantallas amplias. En pantallas estrechas se adapta sin ocultar las acciones del feed. Debe poder verse la publicación y el diagrama durante la demostración en laptop/proyector.
 
 ```text
-FuturoDigital
-
-Para ti
-
-┌─────────────────────────┐
-│ 🎮                      │
-│ 5 juegos para descubrir │
-│ @GameLab                │
-│                         │
-│ ❤️ 320   🔖 Guardar     │
-└─────────────────────────┘
-
-┌─────────────────────────┐
-│ 🚀                      │
-│ ¿Podremos vivir en Marte?│
-│ @ScienceNow             │
-│                         │
-│ ❤️ 815   🔖 Guardar     │
-└─────────────────────────┘
+Usuario → Frontend → API → Backend ┬→ Base de datos
+                                   └→ Algoritmo → Frontend
 ```
 
-En esta vista la aplicación funciona como cualquier aplicación convencional.
+El diagrama muestra brevemente qué representa cada pieza. Cuando no hay acción en curso permanece visible en reposo; al interactuar, se iluminan las piezas del trayecto. **No** muestra misiones, barras de progreso, instrucciones obligatorias, tablas permanentes ni un botón «Siguiente paso». El usuario puede salir y volver a Rayos X sin perder sus interacciones.
 
-Debe existir siempre un botón visible:
+El diagrama representa sistemas simulados localmente: no debe hacer creer que hay un servidor o una base de datos reales ejecutándose.
 
-**👁 Activar Modo Rayos X**
+## 6. Regla de explicación de acciones
 
----
+Una pulsación produce inmediatamente el cambio que espera el usuario. Si Rayos X está activo, en paralelo se reproduce automáticamente un recorrido breve (orientativamente 2–3 segundos): etapa activa, conexión hacia la siguiente pieza y **una frase concreta** sobre la acción. Al terminar queda un resumen corto de la última acción, hasta que ocurra otra.
 
-# 5. Modo Rayos X
+- El flujo de Me gusta y Seguir recorre **Frontend → API → Backend → Base de datos → respuesta al Frontend**.
+- Recomendaciones recorre **Frontend → API → Backend → Base de datos → Algoritmo → nuevo feed en Frontend**.
+- La respuesta y el resultado visible deben corresponder a la publicación o autor que se pulsó.
+- Pulsaciones rápidas conservan **todos** sus efectos sobre los datos; la visualización se reinicia para explicar la **acción más reciente**, sin mezclas ni bloqueos prolongados.
+- Al desactivar Rayos X se detiene la visualización, no se deshacen las acciones. Reiniciar borra el estado de la sesión y cualquier animación pendiente.
+- Con movimiento reducido se presenta el trayecto y resultado de manera estática y comprensible, sin depender de la animación para entenderlos.
 
-Al activarlo, la interfaz se divide visualmente en dos áreas.
+## 7. Me gusta
 
-### Aplicación
-
-Se mantiene visible FuturoDigital.
-
-### ¿Qué está ocurriendo?
-
-Aparece un esquema simplificado:
+Al dar Me gusta, el corazón y el contador cambian de inmediato. En Rayos X, las frases pueden ser:
 
 ```text
-📱 Frontend
-     ↓
-🌐 API
-     ↓
-⚙️ Backend
-     ↓
-🗄️ Base de datos
+Frontend: Alex pulsó Me gusta en esta publicación.
+API: Se envía POST /likes.
+Backend: Se comprueba quién y qué publicación.
+Base de datos: Se recuerda este Me gusta.
+Respuesta: El feed ya muestra el nuevo contador.
 ```
 
-Cada interacción ilumina progresivamente los componentes utilizados.
+En el nodo Base de datos aparece **solo durante la explicación** una fila contextual, por ejemplo `Alex | videojuegos | ♥`. Al quitar Me gusta se muestra la eliminación de esa relación y el contador vuelve a su valor anterior. No se muestra una tabla de sesión permanente.
 
-El objetivo es que el estudiante pueda **ver viajar la acción a través del sistema**.
+## 8. Seguir a un creador
 
----
+Seguir actualiza inmediatamente todas las publicaciones del mismo autor. Rayos X usa el mismo recorrido y una explicación específica (`POST /follow` o la acción de dejar de seguir). En Base de datos aparece brevemente una fila como `Alex | sigue a | PixelZone`; al dejar de seguir se indica su eliminación. Esto enseña que una arquitectura compartida permite funciones diferentes.
 
-# 6. Ejemplo pedagógico: dar Like
+## 9. Recomendaciones y algoritmos
 
-El presentador pulsa:
+El botón **✨ Mejorar mis recomendaciones** usa Me gusta y autores seguidos como señales. La regla local es determinista y explicable: cada Me gusta aporta **+1** a la categoría de su publicación y cada autor seguido aporta **+2** a cada categoría en la que publica, una sola vez por categoría. Se muestra un resumen breve de los intereses detectados durante la explicación en Rayos X.
 
-**❤️ Me gusta**
+Al ejecutar la acción, el feed se reordena de forma estable: mayor puntuación de categoría primero; los empates conservan el orden original. El cambio debe ser perceptible y no borrar Me gusta ni seguidos. Si no hay señales, se indica que hay que dar Me gusta o seguir a alguien antes de personalizar el feed; no se simula una preferencia inventada.
 
-La animación comienza.
+El recorrido destaca la consulta de datos y el algoritmo hasta el nuevo feed. No se utiliza IA real ni simulada en la personalización: **el algoritmo es programación con reglas simples**. La IA puede mencionarse como componente opcional de otros productos, no como explicación falsa del funcionamiento de esta versión.
 
-### Paso 1 — Frontend
+## 10. Mapa completo opcional
 
-Se ilumina:
+**Ver mapa completo** está disponible en cualquier momento, sin desbloqueos ni requisito de completar acciones. Presenta Usuario, Frontend, API, Backend, Base de datos y Algoritmo / IA con definiciones muy breves. Debe aclarar que este feed utiliza reglas y que una IA sería una pieza adicional, no toda la aplicación.
 
-**📱 FRONTEND**
-
-Mensaje:
-
-> Detectamos que el usuario presionó “Me gusta”.
-
----
-
-### Paso 2 — API
-
-Una pequeña animación representa el envío de un mensaje.
-
-```text
-POST /likes
-```
-
-Explicación:
-
-> El frontend necesita comunicarle al servidor lo que ocurrió.
-
----
-
-### Paso 3 — Backend
-
-Se ilumina:
-
-**⚙️ BACKEND**
-
-Mensaje:
-
-> El servidor comprueba qué usuario dio like y a qué publicación.
-
----
-
-### Paso 4 — Base de datos
-
-Se ilumina:
-
-**🗄️ BASE DE DATOS**
-
-Mostrar una tabla muy sencilla:
-
-| usuario | publicación | like |
-|---|---|---|
-| Alex | videojuegos | ❤️ |
-
-Aparece visualmente una nueva fila.
-
-Mensaje:
-
-> La aplicación guarda la información para recordarla después.
-
----
-
-### Paso 5 — Respuesta
-
-La información vuelve visualmente:
-
-```text
-Base de datos
-      ↑
-Backend
-      ↑
-API
-      ↑
-Frontend
-```
-
-El contador cambia:
-
-**❤️ 320 → 321**
-
----
-
-# 7. Segunda demostración: seguir a un creador
-
-El usuario presiona:
-
-**➕ Seguir**
-
-La secuencia vuelve a recorrer:
-
-Frontend → API → Backend → Base de datos.
-
-Pero en esta ocasión puede mostrarse otra tabla:
-
-### Usuarios seguidos
-
-| usuario | sigue a |
-|---|---|
-| Alex | GameLab |
-
-Esto permite enseñar que una misma arquitectura permite implementar funciones muy distintas.
-
----
-
-# 8. Tercera demostración: recomendaciones
-
-Esta interacción introduce algoritmos e inteligencia artificial.
-
-Botón:
-
-**✨ Mejorar mis recomendaciones**
-
-El sistema consulta las interacciones realizadas.
-
-Ejemplo:
-
-```text
-Tus intereses detectados:
-
-🎮 Videojuegos     +3
-🚀 Ciencia         +2
-🎨 Arte            +0
-⚽ Deportes        +0
-```
-
-Posteriormente aparece:
-
-```text
-Tus datos
-   ↓
-Algoritmo de recomendación
-   ↓
-Nuevo feed
-```
-
-El orden de las tarjetas cambia.
-
-Por ejemplo, aparecen primero videojuegos y ciencia.
-
----
-
-# 9. Introducción de IA
-
-Después de explicar el algoritmo tradicional puede aparecer un componente adicional:
-
-**🤖 IA**
-
-Visualización:
-
-```text
-Historial del usuario
-        ↓
-       🤖 IA
-        ↓
-"Podrían interesarle contenidos
-sobre exploración espacial
-y videojuegos de ciencia ficción."
-```
-
-El objetivo pedagógico es mostrar que la IA constituye **una parte del sistema**, no toda la aplicación.
-
-Mensaje sugerido:
-
-> Una aplicación puede usar inteligencia artificial para resolver determinadas tareas, pero sigue necesitando interfaces, servidores, datos y programación tradicional.
-
-No es necesario utilizar una API de IA real durante la demostración.
-
-Las respuestas pueden estar simuladas para garantizar rapidez y funcionamiento sin Internet.
-
----
-
-# 10. Vista final
-
-Al terminar debe aparecer una vista que conecte todos los conceptos.
-
-```text
-                FuturoDigital
-
-                  👤
-                Usuario
-                  │
-                  ▼
-           ┌────────────┐
-           │  Frontend  │
-           └─────┬──────┘
-                 │ API
-                 ▼
-           ┌────────────┐
-           │  Backend   │
-           └───┬────┬───┘
-               │    │
-               ▼    ▼
-        ┌─────────┐  ┌───────────┐
-        │Base de  │  │ Algoritmo │
-        │ datos   │  │   / IA    │
-        └─────────┘  └───────────┘
-```
-
-Mensaje final:
+Mensaje de síntesis:
 
 > **Programar significa construir las reglas y sistemas que hacen posible todo esto.**
 
----
-
-# 11. Pequeña demostración de código
-
-Opcionalmente puede existir un botón:
-
-**</> Ver código**
-
-No debe abrirse un proyecto completo.
-
-Debe mostrar únicamente fragmentos extremadamente sencillos relacionados con la acción realizada.
-
-Ejemplo:
-
-```javascript
-function darLike() {
-    likes = likes + 1;
-}
-```
-
-El presentador puede cambiar temporalmente:
-
-```javascript
-likes = likes + 1;
-```
-
-por:
-
-```javascript
-likes = likes + 10;
-```
-
-y demostrar inmediatamente cómo cambia el comportamiento.
-
-El objetivo no es enseñar sintaxis, sino demostrar la relación:
-
-**Código → comportamiento**
-
----
-
-# 12. Datos
-
-Toda la información debe ser ficticia.
-
-### Usuarios
-
-```text
-Alex
-Sam
-Taylor
-```
-
-### Categorías
-
-```text
-Videojuegos
-Música
-Ciencia
-Tecnología
-Deportes
-Arte
-Películas
-```
-
-### Publicaciones
-
-Entre 8 y 12 publicaciones son suficientes.
-
-Cada publicación necesita:
-
-```text
-id
-titulo
-autor
-categoria
-likes
-guardados
-```
-
-No se necesitan archivos multimedia reales.
-
-Las miniaturas pueden generarse mediante:
-
-- emojis;
-- iconos;
-- ilustraciones SVG;
-- gradientes;
-- imágenes estáticas propias.
-
----
-
-# 13. Arquitectura técnica recomendada
-
-Para la demostración pueden utilizarse dos niveles de implementación.
-
-## Opción A — Completamente simulada
-
-Una única aplicación frontend.
-
-Tecnologías posibles:
-
-- React;
-- TypeScript;
-- CSS / Tailwind / MUI.
-
-La base de datos, backend y API se representan visualmente pero funcionan mediante datos locales.
-
-Ventajas:
-
-- muy fiable;
-- funciona sin Internet;
-- instalación sencilla;
-- menor riesgo durante la presentación.
-
-Esta es la opción recomendada para la charla.
-
----
-
-## Opción B — Arquitectura real simplificada
-
-Frontend:
-
-- React.
-
-Backend:
-
-- Express o FastAPI.
-
-Base de datos:
-
-- SQLite.
-
-Endpoints mínimos:
-
-```text
-GET /posts
-POST /likes
-POST /follow
-GET /recommendations
-```
-
-Esta versión puede utilizarse si también se desea demostrar físicamente que frontend y backend son programas separados.
-
-Para el público objetivo no es estrictamente necesario.
-
----
-
-# 14. Requisito importante de diseño
-
-El sistema debe diferenciar claramente:
-
-### Lo que experimenta el usuario
-
-Aplicación simple y familiar.
-
-### Lo que ocurre internamente
-
-Arquitectura tecnológica.
-
-El cambio entre ambos mundos debe producirse mediante el **Modo Rayos X**.
-
-Por tanto, la aplicación no debe parecer inicialmente una herramienta educativa.
-
-Primero debe parecer una aplicación normal.
-
-Después se revela progresivamente cómo funciona.
-
----
-
-# 15. Alcance mínimo viable
-
-Para una primera versión solamente deben implementarse:
-
-1. Feed con 5–8 publicaciones.
-2. Botón de Like.
-3. Botón de Seguir.
-4. Modo Rayos X.
-5. Animación Frontend → API → Backend → Base de datos.
-6. Tabla visual de datos.
-7. Recomendaciones simples.
-8. Sistema de cuatro misiones.
-9. Pantalla final con arquitectura completa.
-
-No son necesarios:
-
-- cuentas reales;
-- autenticación;
-- subida de contenido;
-- reproducción multimedia;
-- comentarios reales;
-- conexión a servicios externos;
-- IA real;
-- almacenamiento permanente;
-- múltiples páginas.
-
----
-
-# 16. Criterios de éxito
-
-La demostración debería permitir que un estudiante sin conocimientos técnicos pueda responder al finalizar:
-
-- qué es aproximadamente un frontend;
-- qué hace un backend;
-- para qué sirve una base de datos;
-- qué significa que dos sistemas se comuniquen mediante una API;
-- dónde pueden utilizarse algoritmos o IA;
-- qué papel tiene un programador al construir estos sistemas.
-
-El principal indicador de éxito no es que recuerde definiciones técnicas exactas, sino que comprenda que **una aplicación aparentemente sencilla está formada por múltiples piezas que los profesionales de informática diseñan, programan y conectan entre sí**.
+Se puede volver al feed conservando la sesión o reiniciar para otra charla.
+
+## 11. Datos y funcionamiento local
+
+- Ocho publicaciones ficticias son suficientes. Cada una tiene `id`, título, autor, categoría, likes iniciales, guardados (dato opcional para futuro uso) e ilustración local; no requiere reproducción multimedia.
+- Alex es el usuario de la demostración. Me gusta y autores seguidos son estado local de la sesión y pueden deshacerse; el seguimiento pertenece al autor, no a una sola tarjeta.
+- Las ilustraciones pueden ser SVG originales u otros recursos estáticos propios. Deben distinguir temas y publicaciones sin depender únicamente de un emoji sobre un gradiente.
+- React, TypeScript, Vite y CSS implementan la simulación; API, backend y base de datos son representaciones didácticas, no servicios reales.
+- No se guardan cuentas ni datos permanentes. Una recarga o el control **Reiniciar demo** restablece publicaciones, interacciones, orden y visualización.
+
+## 12. Fuera de alcance de esta versión
+
+Guardar, Actualizar feed, comentarios, cuentas, autenticación, subida de contenido, reproducción multimedia, servicios externos, persistencia, IA real o simulada, editor de código, misiones guiadas, avance manual y tablas permanentes. Estos elementos no son requisitos para medir el rediseño.
+
+## 13. Criterios de aceptación
+
+1. Al abrir, se ve un feed claro y reconocible de una sola columna; se navega con scroll continuo y se aprecia una publicación predominante antes de la siguiente.
+2. Cada publicación tiene cabecera de autor, ilustración vertical protagonista, acciones y contador/texto debajo. El diseño no se convierte en cuadrícula en escritorio.
+3. Toda la aplicación, incluido Rayos X y el mapa completo, mantiene tema claro y contraste legible en móvil y en laptop/proyector.
+4. Like y Seguir funcionan y se deshacen con o sin Rayos X; seguir a un autor se refleja en todas sus publicaciones.
+5. Rayos X puede activarse y cerrarse libremente. Su diagrama está visible en reposo y destaca automáticamente el trayecto correcto al realizar cualquiera de las tres acciones, sin exigir «Siguiente» ni desactivar los botones durante toda la explicación.
+6. Las explicaciones son breves y contextualizadas; al llegar a Base de datos se muestra una fila transitoria pertinente, no una tabla permanente. El efecto ya es visible en el feed al pulsar.
+7. Con clics rápidos se preservan todas las interacciones y la visualización corresponde a la última. Con movimiento reducido, se entiende el recorrido sin animación.
+8. Recomendaciones muestra señales reales, explica la regla, reordena de modo estable y orienta cuando no existen intereses. El nuevo orden es perceptible.
+9. Ver mapa completo está disponible en cualquier momento; volver conserva el estado y reiniciar lo restablece todo.
+10. Una persona sin conocimientos técnicos puede señalar qué hacen aproximadamente frontend, API, backend, base de datos y algoritmo, y dónde podría incorporarse IA sin confundirla con toda la aplicación.

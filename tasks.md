@@ -1,86 +1,73 @@
-# Tareas de implementación — FuturoDigital
+# Tareas del rediseño — FuturoDigital
 
-Alcance acordado: MVP de `spec.md`, con cuatro misiones guiadas, simulación local, avance manual de Rayos X y presentación principal en laptop/proyector.
+Referencia: `spec.md`. El objetivo es pasar del prototipo actual de cuadrícula y misiones a un feed social de una columna, Rayos X libre y explicaciones automáticas. Los ítems marcados abajo son **base existente reutilizable**; todos los cambios de diseño y comportamiento siguen pendientes hasta verificarlos.
 
-## 1. Preparar la aplicación
+## 0. Base existente reutilizable
 
-- [x] Inicializar Vite con React y TypeScript; añadir scripts para desarrollo, compilación y comprobación de tipos.
-- [x] Organizar el código por datos, estado/lógica y componentes visuales, sin incorporar servidor ni servicios externos.
-- [x] Definir estilos globales y una disposición adaptable que priorice la lectura en pantalla horizontal proyectada.
+- [x] Proyecto React + TypeScript + Vite con datos ficticios locales, ocho publicaciones, compilación y pruebas.
+- [x] Like y Seguir alternables, con seguimiento compartido por autor y reinicio de sesión.
+- [x] Regla determinista de recomendaciones a partir de Me gusta y autores seguidos.
 
-**Comprobar:** la aplicación arranca localmente y compila sin errores.
+## 1. Convertir el feed en una publicación por vez
 
-## 2. Definir datos y estado de la demo
+- [x] Reemplazar en `App.tsx` y `styles.css` la cuadrícula y tarjeta destacada por **una sola columna centrada** de publicaciones del mismo ancho, con scroll vertical continuo y sin scroll-snap.
+- [x] Reorganizar `PostCard.tsx`: avatar/autor y Seguir arriba, ilustración vertical protagonista (aprox. 4:5), acciones debajo, contador y título/categoría como texto de la publicación.
+- [x] Sustituir el tratamiento repetido de emoji sobre gradiente por ilustraciones SVG o recursos locales propios distinguibles entre publicaciones, sin cargar contenido remoto.
+- [x] Conservar Like, Seguir y recomendaciones funcionales mientras cambia la presentación; mantener los botones accesibles y sus estados visibles.
 
-- [x] Crear ocho publicaciones ficticias con `id`, título, autor, categoría, likes iniciales, guardados y miniatura visual local (emoji, SVG o gradiente).
-- [x] Definir a Alex como usuario de la demostración y representar Likes y autores seguidos como estado de sesión, separado de los contadores iniciales de las publicaciones.
-- [x] Definir un estado inicial único para poder reiniciar publicaciones, interacciones, recomendaciones, misiones y Modo Rayos X.
-- [x] Modelar las cuatro misiones en orden: activar Rayos X → dar Like → seguir a un creador → mejorar recomendaciones.
+**Comprobar:** en escritorio y móvil nunca hay dos publicaciones lado a lado; al desplazar hacia abajo aparece la siguiente de forma natural. La primera pantalla parece un feed social y no una galería educativa.
 
-**Comprobar:** una recarga recupera el estado inicial; ningún dato requiere Internet.
+## 2. Unificar la identidad visual en tema claro
 
-## 3. Construir el feed en modo normal
+- [x] Definir en `styles.css` tokens coherentes de superficie, fondo, texto, borde, acento y estado de Like; aplicarlos al feed, Rayos X y mapa completo.
+- [x] Retirar el panel oscuro, el encabezado de estilo promocional y los elementos decorativos que compitan con la publicación.
+- [x] Ajustar anchuras, tipografía, contraste y tamaño de controles para proyector/laptop y móvil; conservar foco visible y soporte de movimiento reducido.
 
-- [x] Crear cabecera FuturoDigital, sección «Para ti» y tarjetas con miniatura, título, autor, categoría y contador de Likes.
-- [x] Añadir Like y Seguir alternables. Seguir se aplica al autor, por lo que todas sus tarjetas deben reflejar el mismo estado.
-- [x] Mantener visible el botón «Activar Modo Rayos X» y permitir interacciones normales antes de activarlo, sin explicaciones técnicas automáticas.
-- [x] Añadir un control de reinicio accesible durante toda la demostración.
+**Comprobar:** no quedan superficies oscuras pertenecientes a otro tema; la publicación es el foco visual y la información sigue siendo legible a distancia.
 
-**Comprobar:** los contadores y botones reflejan inmediatamente las acciones y sus reversiones; el feed inicial parece una aplicación cotidiana.
+## 3. Sustituir misiones por Rayos X de exploración libre
 
-## 4. Implementar misiones y navegación
+- [x] Retirar de `demo.ts`, `App.tsx` y `XrayPanel.tsx` el índice de misión, las instrucciones, la barra de progreso y las condiciones de desbloqueo.
+- [x] Mantener el feed usable al activar Rayos X y mostrar un diagrama compacto con Usuario, Frontend, API, Backend, Base de datos y Algoritmo; ubicarlo junto al feed en escritorio y adaptarlo a móvil.
+- [x] Mostrar el diagrama en reposo hasta que haya una acción. Permitir activar/desactivar Rayos X en cualquier momento sin perder datos ni requerir terminar una explicación.
+- [x] Hacer accesible **Ver mapa completo** sin condiciones, tanto si Rayos X está activo como si no.
 
-- [x] Mostrar la misión actual con una instrucción breve y progreso «1 de 4» a «4 de 4».
-- [x] Avanzar únicamente cuando se realice la acción de la misión activa; otras interacciones deben seguir funcionando sin completar misiones posteriores.
-- [x] Al activar Rayos X, completar la primera misión y presentar la instrucción para dar Like.
-- [x] Considerar completadas las misiones de Like y Seguir al terminar la explicación paso a paso de una acción válida, no por acciones realizadas previamente en modo normal.
-- [x] Si se deshacen intereses antes de la cuarta misión, pedir nuevas interacciones en lugar de completar recomendaciones sin señales.
+**Comprobar:** se puede ejecutar Like, Seguir o Recomendaciones en cualquier orden, entrar y salir de Rayos X y abrir el mapa completo sin completar misiones.
 
-**Comprobar:** el recorrido guiado funciona desde cero y no se salta pasos al interactuar libremente.
+## 4. Mostrar el trayecto automáticamente y sin bloquear la interacción
 
-## 5. Construir el Modo Rayos X
+- [x] Cambiar el estado en `demo.ts` para aplicar Like, Seguir y el orden recomendado **al pulsar**, con o sin Rayos X; eliminar la confirmación diferida y el botón «Siguiente paso».
+- [x] Al interactuar con Rayos X activo, iluminar sucesivamente el trayecto adecuado durante unos 2–3 segundos y terminar con un resumen corto de la última acción.
+- [x] Para Like/Seguir, representar Frontend → API → Backend → Base de datos → respuesta al Frontend; para Recomendaciones, incluir la consulta a datos, Algoritmo y nuevo feed.
+- [x] Reducir las explicaciones a una frase contextual por etapa; conservar mensajes API pertinentes (`POST /likes`, `POST /follow` o su operación inversa).
+- [x] Controlar temporizadores y clics rápidos: todas las pulsaciones cambian el estado; la animación anterior se cancela y el diagrama muestra solamente la acción más reciente. Salir de Rayos X o reiniciar cancela cualquier animación pendiente.
+- [x] Presentar un trayecto estático comprensible cuando esté activada la preferencia de movimiento reducido.
 
-- [x] Distribuir la pantalla en dos áreas simultáneas: aplicación y panel «¿Qué está ocurriendo?»; permitir volver al modo normal sin perder el estado de sesión.
-- [x] Representar Frontend → API → Backend → Base de datos como etapas distinguibles, con un indicador visual de la etapa activa y movimiento de la acción.
-- [x] Implementar un recorrido manual con botón «Siguiente»: detección en frontend, envío mediante API, validación en backend, cambio en base de datos y respuesta hasta el frontend.
-- [x] Adaptar textos y mensaje de API a Like y Seguir; explicar con lenguaje sencillo qué hace cada pieza.
-- [x] Coordinar el recorrido con el estado para evitar que clics repetidos mezclen explicaciones o produzcan contadores inconsistentes.
+**Comprobar:** una pulsación cambia de inmediato el contador/botón; clics rápidos no pierden acciones ni dejan mensajes atrasados; no se bloquean las acciones durante el recorrido.
 
-**Comprobar:** el presentador puede detenerse en cada etapa; al cerrar el recorrido se ve el efecto correcto en el feed.
+## 5. Contexto mínimo en Base de datos
 
-## 6. Visualizar la base de datos simulada
+- [x] Retirar las dos tablas permanentes de `XrayPanel.tsx` y mostrar solo una fila breve dentro o junto al nodo Base de datos cuando llegue una acción: `Alex | publicación | ♥` o `Alex | sigue a | autor`.
+- [x] Reflejar también la eliminación al quitar Me gusta o dejar de seguir, usando el dato real de la sesión.
+- [x] Mantener una indicación breve de que backend, API y base de datos están **simulados localmente**.
 
-- [x] Mostrar una tabla de Likes con usuario, publicación y estado, y otra de autores seguidos con usuario y autor.
-- [x] Actualizar las filas a partir de las interacciones reales de Alex durante la sesión; al quitar un Like o dejar de seguir, reflejar la eliminación.
-- [x] Destacar la fila añadida o eliminada cuando el recorrido manual llega a «Base de datos».
-- [x] Explicar en la interfaz que el recorrido representa de forma simplificada sistemas simulados localmente.
+**Comprobar:** el diagrama queda despejado en reposo; cada fila contextual corresponde exactamente a la acción que se acaba de realizar.
 
-**Comprobar:** las tablas nunca muestran interacciones inexistentes y coinciden con los controles del feed.
+## 6. Recomendaciones y mapa opcional
 
-## 7. Implementar recomendaciones
+- [x] Reutilizar la puntuación existente (+1 por Me gusta, +2 por categoría de autor seguido) y el orden estable; mostrar intereses reales brevemente en Rayos X y hacer perceptible el nuevo orden del feed.
+- [x] Si no hay señales, mantener el feed y orientar a dar Me gusta o seguir a un creador, sin iniciar un recorrido falso.
+- [x] Adaptar `Overview.tsx` al tema claro y abrirlo desde un control visible **siempre**, sin requisito de cuatro misiones; permitir volver sin perder datos y reiniciar todo.
+- [x] Mantener la distinción pedagógica entre algoritmo de reglas e IA opcional; no atribuir a IA la personalización de esta demo.
 
-- [x] Calcular intereses por categoría a partir de publicaciones con Like y autores seguidos; documentar en el código una regla simple y determinista de puntuación.
-- [x] Mostrar las categorías y señales detectadas antes de aplicar el nuevo orden.
-- [x] Impedir la aplicación si no hay señales y explicar qué acción debe realizarse para generarlas.
-- [x] Reordenar de forma estable las tarjetas al pulsar «Mejorar mis recomendaciones», conservando interacciones y contadores.
-- [x] Mostrar el recorrido pedagógico «Tus datos → Algoritmo → Nuevo feed» y completar la cuarta misión cuando termine.
+**Comprobar:** la personalización refleja interacciones realizadas en cualquier orden; el mapa completo está disponible desde el inicio y el regreso conserva el estado.
 
-**Comprobar:** cambiar Likes o seguidos cambia los intereses calculados; con datos suficientes el orden del feed responde a ellos.
+## 7. Verificación y documentación
 
-## 8. Crear la síntesis final
+- [x] Sustituir las pruebas de misiones y avance manual por pruebas del flujo libre, cambios inmediatos, recorrido automático, clics rápidos, deshacer acciones, ausencia de señales, mapa opcional y reinicio.
+- [x] Verificar con teclado la activación de Rayos X, las publicaciones y el mapa; revisar anuncios de etapa activa, foco y el modo de movimiento reducido.
+- [x] Revisar visualmente a tamaño laptop/proyector y móvil: columna única, scroll continuo, tema claro uniforme, diagrama visible y ausencia de desbordes.
+- [x] Actualizar `README.md` con los controles reales y eliminar referencias a misiones o al avance por «Siguiente».
+- [x] Ejecutar `npm test` y `npm run build`; corregir los fallos antes de marcar el rediseño como completado.
 
-- [x] Tras la cuarta misión, ofrecer «Ver panorama» sin retirar inmediatamente el feed recomendado.
-- [x] Dibujar el mapa Usuario → Frontend → API → Backend → Base de datos / Algoritmo, acompañado de definiciones breves.
-- [x] Incorporar el mensaje: «Programar significa construir las reglas y sistemas que hacen posible todo esto».
-- [x] Permitir regresar a la demostración y reiniciar para otra charla.
-
-**Comprobar:** el cierre conecta explícitamente las piezas vistas en las misiones y no sugiere que exista IA real en este MVP.
-
-## 9. Pulir y verificar la demostración
-
-- [x] Revisar contraste, tamaño de letra, botones grandes, foco visible y mensajes comprensibles desde un proyector; respetar la preferencia de movimiento reducido.
-- [x] Verificar teclado y atributos accesibles de botones, pasos activos y mensajes de progreso.
-- [x] Verificar con pruebas de interacción y estado: acciones previas a Rayos X, cuatro misiones, clics repetidos, deshacer Like/Seguir, recomendaciones sin señales, salir/entrar de Rayos X, pantalla final y reinicio.
-- [x] Ejecutar compilación y comprobación de tipos; corregir errores y dejar instrucciones breves para iniciar la demo localmente.
-
-**Fuera de esta entrega:** Guardar, Actualizar feed, IA simulada, Ver código, cuentas, persistencia, servidor y servicios externos.
+**Fuera de alcance:** backend real, cuentas, almacenamiento permanente, multimedia, Guardar, Actualizar feed, IA simulada, editor de código, misiones, avance manual y tablas permanentes.

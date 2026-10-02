@@ -1,6 +1,6 @@
 # FuturoDigital
 
-Aplicación local de una red social ficticia para una charla de orientación vocacional. Permite descubrir visualmente qué ocurre detrás de un Like, un seguimiento y un feed personalizado.
+Aplicación local de una red social ficticia para una charla de orientación vocacional. El feed de una columna permite explorar publicaciones con scroll continuo y descubrir qué ocurre detrás de Me gusta, Seguir y las recomendaciones.
 
 ## Ejecutar
 
@@ -11,9 +11,9 @@ npm install
 npm run dev
 ```
 
-Abre la dirección local que muestre Vite. La primera vez se muestra el feed normal. Activa **Modo Rayos X** para seguir cuatro misiones; después de pulsar Like o Seguir, usa **Siguiente paso** para recorrer Frontend → API → Backend → Base de datos → respuesta. **Mejorar mis recomendaciones** muestra cómo las interacciones ordenan el feed y **Ver panorama completo** presenta la arquitectura final.
+Abre la dirección local que muestre Vite. La primera vez se muestra el feed normal. Puedes dar Me gusta, seguir creadores o pulsar **Mejorar mis recomendaciones** en cualquier orden. Activa **Modo Rayos X** para ver el diagrama y el trayecto automático y breve de la próxima acción. **Ver mapa completo** abre la síntesis de la arquitectura en cualquier momento.
 
-Las acciones hechas antes de activar Rayos X funcionan como en una red social normal. Durante un recorrido, termina los pasos para seguir interactuando; **Reiniciar demo** restablece las interacciones y misiones. Los datos se guardan solo en la memoria de la pestaña.
+Las acciones se aplican de inmediato, incluso durante una explicación en Rayos X. Salir del modo conserva las interacciones; **Reiniciar demo** restablece feed, datos y visualización. Los datos se guardan solo en la memoria de la pestaña.
 
 ## Verificar
 
