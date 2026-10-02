@@ -4,7 +4,7 @@ import { getInterests, getRecommendedPostIds } from './recommendations'
 import { posts } from '../data/posts'
 
 function advanceAll(state: DemoState): DemoState {
-  while (state.trace?.stepIndex !== null && state.trace) {
+  while (state.trace) {
     state = demoReducer(state, { type: 'advanceTrace', traceId: state.trace.id })
   }
   return state
@@ -43,14 +43,14 @@ describe('acciones libres y estado de la sesión', () => {
     expect(state.trace).toMatchObject({ kind: 'like', intent: 'add', stepIndex: 0 })
     expect(getTraceRoute(state.trace!)).toEqual(['frontend', 'api', 'backend', 'database', 'frontend'])
     state = advanceAll(state)
-    expect(state.trace?.stepIndex).toBeNull()
+    expect(state.trace).toBeNull()
     expect(state.likedPostIds).toEqual(['marte'])
     state = demoReducer(state, { type: 'toggleLike', postId: 'marte' })
     expect(state.trace).toMatchObject({ kind: 'like', intent: 'remove', stepIndex: 0 })
     expect(state.likedPostIds).toEqual([])
   })
 
-  it('conserva todas las pulsaciones rápidas y descarta temporizadores anteriores', () => {
+  it('conserva todas las pulsaciones rápidas e ignora controles de recorridos anteriores', () => {
     let state = demoReducer(createInitialState(), { type: 'toggleXray' })
     state = demoReducer(state, { type: 'toggleLike', postId: 'marte' })
     const oldId = state.trace!.id
@@ -96,8 +96,8 @@ describe('acciones libres y estado de la sesión', () => {
     expect(state.recommendedPostIds?.slice(0, 2)).toEqual(['mundos-abiertos', 'pixel-art'])
     expect(state.trace).toMatchObject({ kind: 'recommend', stepIndex: 0 })
     expect(getTraceRoute(state.trace!)).toEqual(['frontend', 'api', 'backend', 'database', 'algorithm', 'frontend'])
-    state = demoReducer(state, { type: 'completeTrace', traceId: state.trace!.id })
-    expect(state.trace?.stepIndex).toBeNull()
+    state = advanceAll(state)
+    expect(state.trace).toBeNull()
     expect(state.recommendedPostIds?.[1]).toBe('pixel-art')
   })
 })

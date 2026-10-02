@@ -25,17 +25,6 @@ function App() {
     previousOrder.current = state.recommendedPostIds
   }, [state.recommendedPostIds, state.view])
 
-  const trace = state.trace
-  useEffect(() => {
-    if (!state.xrayEnabled || state.view !== 'feed' || !trace || trace.stepIndex === null) return
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-      dispatch({ type: 'completeTrace', traceId: trace.id })
-      return
-    }
-    const timer = window.setTimeout(() => dispatch({ type: 'advanceTrace', traceId: trace.id }), 460)
-    return () => window.clearTimeout(timer)
-  }, [state.xrayEnabled, state.view, trace])
-
   const postById = new Map(posts.map((post) => [post.id, post]))
   const orderedPosts = state.recommendedPostIds
     ? state.recommendedPostIds.flatMap((id) => {
@@ -75,7 +64,7 @@ function App() {
       </header>
 
       {state.view === 'overview' ? (
-        <Overview onBack={() => dispatch({ type: 'closeOverview' })} onReset={() => dispatch({ type: 'reset' })} />
+        <Overview />
       ) : (
         <main id="inicio" className={`main-layout ${state.xrayEnabled ? 'main-layout--xray' : ''}`}>
           <section className="feed" aria-labelledby="feed-title">
@@ -100,7 +89,7 @@ function App() {
               ))}
             </div>
           </section>
-          {state.xrayEnabled && <XrayPanel trace={state.trace} />}
+          {state.xrayEnabled && <XrayPanel trace={state.trace} onNext={(traceId) => dispatch({ type: 'advanceTrace', traceId })} />}
         </main>
       )}
     </div>

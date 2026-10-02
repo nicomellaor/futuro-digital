@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { posts } from '../data/posts'
 import { currentUser, getTraceRoute, type ArchitectureNode, type Trace } from '../state/demo'
 
@@ -18,7 +19,7 @@ function getCopy(trace: Trace) {
     'Se consultan Me gusta y creadores seguidos.',
     'Una regla ordena las categorías: +1 por Me gusta, +2 por autor seguido.',
     'El feed ya muestra primero tus intereses.',
-  ][trace.stepIndex ?? 0]
+  ][trace.stepIndex]
 
   const post = trace.kind === 'like' ? posts.find((item) => item.id === trace.targetId) : null
   const subject = post ? `«${post.title}»` : `@${trace.targetId}`
@@ -31,15 +32,7 @@ function getCopy(trace: Trace) {
     `El backend comprueba quién y ${post ? 'qué publicación' : 'qué creador'}.`,
     adding ? 'Se guarda esta relación para recordarla.' : 'Se elimina la relación guardada.',
     post ? 'El feed ya muestra el nuevo contador.' : 'El feed ya muestra el nuevo seguimiento.',
-  ][trace.stepIndex ?? 0]
-}
-
-function getSummary(trace: Trace): string {
-  if (trace.kind === 'recommend') return 'El feed se ordenó según tus intereses.'
-  if (trace.kind === 'follow') return trace.intent === 'add'
-    ? `Ahora sigues a @${trace.targetId}.` : `Dejaste de seguir a @${trace.targetId}.`
-  const post = posts.find((item) => item.id === trace.targetId)
-  return `${trace.intent === 'add' ? 'Me gusta añadido' : 'Me gusta eliminado'} en «${post?.title ?? 'la publicación'}».`
+  ][trace.stepIndex]
 }
 
 function getDataRow(trace: Trace): string {
@@ -49,17 +42,24 @@ function getDataRow(trace: Trace): string {
   return `Alex | ${post?.category ?? 'publicación'} | ♥`
 }
 
-export function XrayPanel({ trace }: { trace: Trace | null }) {
+export function XrayPanel({ trace, onNext }: { trace: Trace | null; onNext: (traceId: number) => void }) {
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const previousTrace = useRef<Trace | null>(null)
+  useEffect(() => {
+    if (previousTrace.current && !trace) headingRef.current?.focus()
+    previousTrace.current = trace
+  }, [trace])
+
   const route = trace ? getTraceRoute(trace) : []
-  const active = trace?.stepIndex === null || !trace ? null : route[trace.stepIndex]
-  const visited = trace ? (trace.stepIndex === null ? route : route.slice(0, trace.stepIndex)) : []
-  const dataVisible = trace && (trace.stepIndex === 3 || trace.stepIndex === null && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+  const active = trace ? route[trace.stepIndex] : null
+  const visited = trace ? route.slice(0, trace.stepIndex) : []
+  const dataVisible = trace?.stepIndex === 3
 
   return (
     <aside className="xray" aria-label="Mapa del Modo Rayos X">
       <div className="xray__header">
         <span className="xray__mark" aria-hidden="true">◎</span>
-        <div><h2>Así funciona</h2><p>Lo que ocurre detrás de cada toque.</p></div>
+        <div><h2 ref={headingRef} tabIndex={-1}>Así funciona</h2><p>Lo que ocurre detrás de cada toque.</p></div>
       </div>
 
       <ol className="xray__diagram" aria-label="Usuario, Frontend, API, Backend, Base de datos y Algoritmo">
@@ -76,26 +76,26 @@ export function XrayPanel({ trace }: { trace: Trace | null }) {
             {node.id === 'database' && dataVisible && <span className="xray__data-row" role="status">
               {trace.kind !== 'recommend' && trace.intent === 'remove' ? 'Se eliminó: ' : ''}{getDataRow(trace)}
             </span>}
-            {node.id === 'algorithm' && trace?.kind === 'recommend' && (trace.stepIndex === 4 || trace.stepIndex === null) && <span className="xray__interests">
+            {node.id === 'algorithm' && trace?.kind === 'recommend' && trace.stepIndex === 4 && <span className="xray__interests">
               {trace.interests.filter(({ score }) => score > 0).map(({ category, score }) => `${category} +${score}`).join('  ·  ')}
             </span>}
           </li>
         })}
       </ol>
 
-      <div className="xray__explanation" aria-live="polite" aria-atomic="true">
-        {!trace && <p>Prueba Me gusta, Seguir o Mejorar mis recomendaciones para ver el recorrido.</p>}
-        {trace?.stepIndex !== null && trace && <>
+      {trace && <div className="xray__explanation">
+        <div aria-live="polite" aria-atomic="true">
           <span className="xray__step">{active === 'frontend' && trace.stepIndex === route.length - 1 ? 'Respuesta al frontend' : nodes.find((node) => node.id === active)?.title}</span>
           <p key={`${trace.id}-${trace.stepIndex}`}>{getCopy(trace)}</p>
-        </>}
-        {trace?.stepIndex === null && trace && <>
-          <span className="xray__step">Última acción</span>
-          <p>{getSummary(trace)}</p>
-          <small>Recorrido: {route.map((node) => nodes.find((item) => item.id === node)?.title).join(' → ')}</small>
-        </>}
-      </div>
-      <p className="xray__note">Una simulación local: aquí no se usa un servidor real.</p>
+        </div>
+        <div className="xray__controls">
+          <span>Paso {trace.stepIndex + 1} de {route.length}</span>
+          <button type="button" onClick={() => onNext(trace.id)}>
+            {trace.stepIndex === route.length - 1 ? 'Finalizar' : 'Siguiente'}
+            <span aria-hidden="true"> →</span>
+          </button>
+        </div>
+      </div>}
     </aside>
   )
 }

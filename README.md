@@ -11,9 +11,9 @@ npm install
 npm run dev
 ```
 
-Abre la dirección local que muestre Vite. La primera vez se muestra el feed normal. Puedes dar Me gusta, seguir creadores o pulsar **Mejorar mis recomendaciones** en cualquier orden. Activa **Modo Rayos X** para ver el diagrama y el trayecto automático y breve de la próxima acción. **Ver mapa completo** abre la síntesis de la arquitectura en cualquier momento.
+Abre la dirección local que muestre Vite. La primera vez se muestra el feed normal. Puedes dar Me gusta, seguir creadores o pulsar **Mejorar mis recomendaciones** en cualquier orden. Activa **Modo Rayos X** para ver el diagrama: al realizar una acción aparece Frontend, **Siguiente** muestra cada etapa y **Finalizar** devuelve el diagrama al reposo. **Ver mapa completo** abre la síntesis de la arquitectura en cualquier momento.
 
-Las acciones se aplican de inmediato, incluso durante una explicación en Rayos X. Salir del modo conserva las interacciones; **Reiniciar demo** restablece feed, datos y visualización. Los datos se guardan solo en la memoria de la pestaña.
+Las acciones se aplican de inmediato, incluso durante una explicación en Rayos X. Una acción nueva reemplaza el recorrido mostrado y empieza en Frontend. Salir del modo conserva las interacciones; **Volver al feed** y **Reiniciar demo** están en el header. Los datos se guardan solo en la memoria de la pestaña.
 
 ## Verificar
 

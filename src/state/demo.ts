@@ -10,14 +10,14 @@ export type InteractionTrace = {
   kind: 'like' | 'follow'
   targetId: string
   intent: 'add' | 'remove'
-  stepIndex: number | null
+  stepIndex: number
 }
 
 export type RecommendationTrace = {
   id: number
   kind: 'recommend'
   interests: Interest[]
-  stepIndex: number | null
+  stepIndex: number
 }
 
 export type Trace = InteractionTrace | RecommendationTrace
@@ -46,7 +46,6 @@ export type DemoAction =
   | { type: 'toggleXray' }
   | { type: 'recommend' }
   | { type: 'advanceTrace'; traceId: number }
-  | { type: 'completeTrace'; traceId: number }
   | { type: 'openOverview' }
   | { type: 'closeOverview' }
   | { type: 'reset' }
@@ -118,20 +117,17 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
     }
     case 'advanceTrace': {
       const trace = state.trace
-      if (!trace || trace.id !== action.traceId || trace.stepIndex === null) return state
+      if (!trace || trace.id !== action.traceId) return state
       const next = trace.stepIndex + 1
-      return { ...state, trace: { ...trace, stepIndex: next >= getTraceRoute(trace).length ? null : next } }
+      return { ...state, trace: next >= getTraceRoute(trace).length ? null : { ...trace, stepIndex: next } }
     }
-    case 'completeTrace':
-      if (!state.trace || state.trace.id !== action.traceId) return state
-      return { ...state, trace: { ...state.trace, stepIndex: null } }
     case 'openOverview':
       return { ...state, view: 'overview', trace: null }
     case 'closeOverview':
       return { ...state, view: 'feed' }
     case 'reset':
-      // Mantener identificadores crecientes evita que un temporizador anterior
-      // pueda avanzar una nueva acción después de reiniciar la demostración.
+      // Mantener identificadores crecientes evita que un control de un recorrido
+      // anterior pueda avanzar otra acción después de reiniciar la demostración.
       return { ...createInitialState(), nextTraceId: state.nextTraceId + 1 }
   }
 }

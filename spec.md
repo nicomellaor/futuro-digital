@@ -48,20 +48,20 @@ Usuario → Frontend → API → Backend ┬→ Base de datos
                                    └→ Algoritmo → Frontend
 ```
 
-El diagrama muestra brevemente qué representa cada pieza. Cuando no hay acción en curso permanece visible en reposo; al interactuar, se iluminan las piezas del trayecto. **No** muestra misiones, barras de progreso, instrucciones obligatorias, tablas permanentes ni un botón «Siguiente paso». El usuario puede salir y volver a Rayos X sin perder sus interacciones.
+El diagrama muestra brevemente qué representa cada pieza. Cuando no hay acción en curso permanece visible en reposo, sin un recuadro de explicación vacío ni una nota fija al pie. Al interactuar, se ilumina la etapa actual. **No** muestra misiones, barras de progreso obligatorias ni tablas permanentes. El usuario puede salir y volver a Rayos X sin perder sus interacciones.
 
-El diagrama representa sistemas simulados localmente: no debe hacer creer que hay un servidor o una base de datos reales ejecutándose.
+El diagrama representa sistemas simulados localmente, como se explica en la documentación del proyecto; no necesita una advertencia permanente en la interfaz.
 
 ## 6. Regla de explicación de acciones
 
-Una pulsación produce inmediatamente el cambio que espera el usuario. Si Rayos X está activo, en paralelo se reproduce automáticamente un recorrido breve (orientativamente 2–3 segundos): etapa activa, conexión hacia la siguiente pieza y **una frase concreta** sobre la acción. Al terminar queda un resumen corto de la última acción, hasta que ocurra otra.
+Una pulsación produce inmediatamente el cambio que espera el usuario. Si Rayos X está activo, aparece la etapa **Frontend** y una frase concreta sobre la acción. El presentador avanza a su ritmo mediante un botón discreto **Siguiente** dentro del panel; en la última etapa el botón dice **Finalizar**. Al finalizar, el diagrama vuelve al reposo y la explicación desaparece. No hay temporizador ni avance automático.
 
 - El flujo de Me gusta y Seguir recorre **Frontend → API → Backend → Base de datos → respuesta al Frontend**.
 - Recomendaciones recorre **Frontend → API → Backend → Base de datos → Algoritmo → nuevo feed en Frontend**.
 - La respuesta y el resultado visible deben corresponder a la publicación o autor que se pulsó.
-- Pulsaciones rápidas conservan **todos** sus efectos sobre los datos; la visualización se reinicia para explicar la **acción más reciente**, sin mezclas ni bloqueos prolongados.
-- Al desactivar Rayos X se detiene la visualización, no se deshacen las acciones. Reiniciar borra el estado de la sesión y cualquier animación pendiente.
-- Con movimiento reducido se presenta el trayecto y resultado de manera estática y comprensible, sin depender de la animación para entenderlos.
+- Pulsaciones rápidas conservan **todos** sus efectos sobre los datos; una acción nueva sustituye la explicación anterior y comienza otra vez en Frontend. No se bloquean los botones del feed.
+- Al desactivar Rayos X se cierra la explicación, no se deshacen las acciones. Reiniciar borra el estado de la sesión y cualquier recorrido pendiente.
+- Con movimiento reducido se mantiene el mismo control manual y las etapas son comprensibles sin animación.
 
 ## 7. Me gusta
 
@@ -91,13 +91,13 @@ El recorrido destaca la consulta de datos y el algoritmo hasta el nuevo feed. No
 
 ## 10. Mapa completo opcional
 
-**Ver mapa completo** está disponible en cualquier momento, sin desbloqueos ni requisito de completar acciones. Presenta Usuario, Frontend, API, Backend, Base de datos y Algoritmo / IA con definiciones muy breves. Debe aclarar que este feed utiliza reglas y que una IA sería una pieza adicional, no toda la aplicación.
+**Ver mapa completo** está disponible en cualquier momento, sin desbloqueos ni requisito de completar acciones. Presenta Usuario, Frontend, API, Backend, Base de datos y Algoritmo / IA con **iconos SVG de línea, no emojis**, y definiciones muy breves. La distinción entre reglas e IA opcional se explica en el nodo correspondiente, sin una nota separada debajo del diagrama.
 
 Mensaje de síntesis:
 
 > **Programar significa construir las reglas y sistemas que hacen posible todo esto.**
 
-Se puede volver al feed conservando la sesión o reiniciar para otra charla.
+Se puede volver al feed conservando la sesión o reiniciar para otra charla mediante **los controles del header**. La vista no repite los botones Volver o Reiniciar en el cuerpo.
 
 ## 11. Datos y funcionamiento local
 
@@ -109,7 +109,7 @@ Se puede volver al feed conservando la sesión o reiniciar para otra charla.
 
 ## 12. Fuera de alcance de esta versión
 
-Guardar, Actualizar feed, comentarios, cuentas, autenticación, subida de contenido, reproducción multimedia, servicios externos, persistencia, IA real o simulada, editor de código, misiones guiadas, avance manual y tablas permanentes. Estos elementos no son requisitos para medir el rediseño.
+Guardar, Actualizar feed, comentarios, cuentas, autenticación, subida de contenido, reproducción multimedia, servicios externos, persistencia, IA real o simulada, editor de código, misiones guiadas, recorrido automático y tablas permanentes. Estos elementos no son requisitos para medir el rediseño.
 
 ## 13. Criterios de aceptación
 
@@ -117,9 +117,9 @@ Guardar, Actualizar feed, comentarios, cuentas, autenticación, subida de conten
 2. Cada publicación tiene cabecera de autor, ilustración vertical protagonista, acciones y contador/texto debajo. El diseño no se convierte en cuadrícula en escritorio.
 3. Toda la aplicación, incluido Rayos X y el mapa completo, mantiene tema claro y contraste legible en móvil y en laptop/proyector.
 4. Like y Seguir funcionan y se deshacen con o sin Rayos X; seguir a un autor se refleja en todas sus publicaciones.
-5. Rayos X puede activarse y cerrarse libremente. Su diagrama está visible en reposo y destaca automáticamente el trayecto correcto al realizar cualquiera de las tres acciones, sin exigir «Siguiente» ni desactivar los botones durante toda la explicación.
+5. Rayos X puede activarse y cerrarse libremente. En reposo muestra solo el diagrama: no hay `xray__note` ni `xray__explanation`. Al pulsar una acción destaca Frontend; únicamente **Siguiente** avanza por el trayecto, y **Finalizar** devuelve el panel al reposo.
 6. Las explicaciones son breves y contextualizadas; al llegar a Base de datos se muestra una fila transitoria pertinente, no una tabla permanente. El efecto ya es visible en el feed al pulsar.
-7. Con clics rápidos se preservan todas las interacciones y la visualización corresponde a la última. Con movimiento reducido, se entiende el recorrido sin animación.
+7. Con clics rápidos se preservan todas las interacciones y el recorrido corresponde a la última, reiniciándose en Frontend. El control manual y el contenido siguen siendo accesibles con teclado y movimiento reducido.
 8. Recomendaciones muestra señales reales, explica la regla, reordena de modo estable y orienta cuando no existen intereses. El nuevo orden es perceptible.
-9. Ver mapa completo está disponible en cualquier momento; volver conserva el estado y reiniciar lo restablece todo.
+9. Ver mapa completo está disponible en cualquier momento; usa iconos, no emojis, y no contiene `overview__note`, `overview__back` ni un botón Reiniciar dentro de la vista. Los controles del header permiten volver conservando el estado y reiniciar todo.
 10. Una persona sin conocimientos técnicos puede señalar qué hacen aproximadamente frontend, API, backend, base de datos y algoritmo, y dónde podría incorporarse IA sin confundirla con toda la aplicación.
