@@ -5,13 +5,14 @@ type PostCardProps = {
   featured: boolean
   liked: boolean
   following: boolean
+  disabled: boolean
   onLike: (id: string) => void
   onFollow: (author: string) => void
 }
 
 const numberFormat = new Intl.NumberFormat('es-CL')
 
-export function PostCard({ post, featured, liked, following, onLike, onFollow }: PostCardProps) {
+export function PostCard({ post, featured, liked, following, disabled, onLike, onFollow }: PostCardProps) {
   return (
     <article className={`post ${featured ? 'post--featured' : ''}`}>
       <div className={`post__art post__art--${post.artwork}`} aria-hidden="true">
@@ -26,6 +27,7 @@ export function PostCard({ post, featured, liked, following, onLike, onFollow }:
             type="button"
             aria-label={`${following ? 'Dejar de seguir' : 'Seguir'} a ${post.author}`}
             aria-pressed={following}
+            disabled={disabled}
             onClick={() => onFollow(post.author)}
           >
             <span aria-hidden="true">{following ? '✓' : '+'}</span> {following ? 'Siguiendo' : 'Seguir'}
@@ -39,6 +41,7 @@ export function PostCard({ post, featured, liked, following, onLike, onFollow }:
             type="button"
             aria-label={`${liked ? 'Quitar Me gusta de' : 'Dar Me gusta a'} ${post.title}`}
             aria-pressed={liked}
+            disabled={disabled}
             onClick={() => onLike(post.id)}
           >
             <span className="like-button__heart" aria-hidden="true">♥</span>
