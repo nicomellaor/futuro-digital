@@ -78,6 +78,10 @@ button:focus-visible, a:focus-visible, h1:focus-visible { outline: 3px solid var
 .xray__mark { display: grid; place-items: center; width: 35px; height: 35px; border: 1px solid #b9c6ee; border-radius: 8px; color: var(--blue); font-size: 25px; line-height: 1; }
 .xray__header h2 { margin: 0 0 2px; font-size: 17px; letter-spacing: -.035em; }
 .xray__header p { margin: 0; color: var(--muted); font-size: 12px; }
+.xray__tabs { display: flex; margin: 4px 0 0; border-bottom: 1px solid var(--line); }
+.xray__tabs button { flex: 1; min-height: 44px; padding: 9px 6px 7px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--muted); font-size: 13px; font-weight: 650; }
+.xray__tabs button[aria-selected='true'] { border-bottom-color: var(--blue); color: var(--blue); font-weight: 800; }
+.xray [role='tabpanel']:focus-visible { outline: 3px solid var(--blue); outline-offset: -3px; }
 .xray__diagram { display: grid; gap: 10px; margin: 16px 0; padding: 0; list-style: none; }
 .xray__node { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: center; column-gap: 10px; min-height: 54px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
 .xray__node:not(:last-child)::after { content: '↓'; position: absolute; z-index: 1; left: 25px; bottom: -12px; color: #8d98a4; font-size: 14px; line-height: 1; }
@@ -98,6 +102,21 @@ button:focus-visible, a:focus-visible, h1:focus-visible { outline: 3px solid var
 .xray__controls > span { color: var(--muted); font-size: 12px; }
 .xray__controls button { min-height: 34px; padding: 3px 2px 3px 9px; border: 0; background: transparent; color: var(--blue); font-size: 13px; font-weight: 750; }
 .xray__controls button:hover { text-decoration: underline; }
+
+.programming__hint { margin: 16px 0 2px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.programming { margin-top: 16px; overflow: hidden; border: 1px solid #35495d; border-radius: 6px; background: #1d2936; color: #eaf1f6; }
+.programming__toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 38px; padding: 8px 13px; border-bottom: 1px solid #35495d; background: #29394b; }
+.programming__file { font: 700 12px/1.3 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; }
+.programming__readonly { color: #b3c2d0; font-size: 11px; white-space: nowrap; }
+.programming__lines { counter-reset: code-line; margin: 0; padding: 12px 0 16px; list-style: none; }
+.programming__line { counter-increment: code-line; display: grid; grid-template-columns: 25px minmax(0, 1fr); gap: 12px; padding: 2px 14px 2px 9px; font: 12px/1.55 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; }
+.programming__line::before { content: counter(code-line); color: #9bafc0; text-align: right; user-select: none; }
+.programming__line--blank { min-height: 14px; }
+.programming__code { min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.programming__line--indented .programming__code { padding-left: 16px; }
+.programming__comment { color: #b3c2d0; }
+.programming__keyword { color: #b6d6ff; font-weight: 700; }
+.programming__string { color: #f2d7ad; }
 
 .overview { max-width: 980px; margin: auto; padding: 30px 24px 80px; }
 .overview__intro { max-width: 650px; margin: 26px 0; }
@@ -123,6 +142,7 @@ button:focus-visible, a:focus-visible, h1:focus-visible { outline: 3px solid var
 @media (max-width: 950px) {
   .main-layout--xray { grid-template-columns: minmax(0, 560px); }
   .main-layout--xray .xray { grid-row: 1; position: sticky; top: 78px; z-index: 4; max-height: 290px; }
+  .main-layout--xray .xray.xray--programming { position: static; max-height: none; overflow: visible; }
   .main-layout--xray .xray__diagram { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin: 10px 0; }
   .main-layout--xray .xray__node { grid-template-columns: 1fr; min-height: 38px; padding: 5px 7px; }
   .main-layout--xray .xray__node:not(:last-child)::after { display: none; }
@@ -145,7 +165,7 @@ button:focus-visible, a:focus-visible, h1:focus-visible { outline: 3px solid var
   .feed__notice, .feed__updated { margin: 0 14px 12px; }
   .feed__stream { gap: 14px; }
   .post { border-left: 0; border-right: 0; border-radius: 0; }
-  .main-layout--xray .xray { top: 102px; margin: 0 10px; padding: 10px; max-height: 245px; }
+  .main-layout--xray .xray { top: 102px; margin: 0 10px; padding: 10px; max-height: min(290px, calc(100vh - 170px)); }
   .main-layout--xray .xray__header { padding-bottom: 7px; }
   .main-layout--xray .xray__header h2 { font-size: 14px; }
   .main-layout--xray .xray__header p { display: none; }

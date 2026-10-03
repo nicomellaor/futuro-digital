@@ -22,6 +22,11 @@ export type RecommendationTrace = {
 
 export type Trace = InteractionTrace | RecommendationTrace
 
+export type ProgrammingAction =
+  | ({ kind: 'like' } & Pick<InteractionTrace, 'targetId' | 'intent'>)
+  | ({ kind: 'follow' } & Pick<InteractionTrace, 'targetId' | 'intent'>)
+  | { kind: 'recommend'; interests: Interest[]; likeCount: number; followCount: number }
+
 export const interactionRoute: ArchitectureNode[] = ['frontend', 'api', 'backend', 'database', 'frontend']
 export const recommendationRoute: ArchitectureNode[] = ['frontend', 'api', 'backend', 'database', 'algorithm', 'frontend']
 
@@ -36,6 +41,7 @@ export type DemoState = {
   recommendedPostIds: string[] | null
   view: 'feed' | 'overview'
   trace: Trace | null
+  lastAction: ProgrammingAction | null
   nextTraceId: number
   notice: string | null
 }
@@ -63,6 +69,7 @@ export function createInitialState(): DemoState {
     recommendedPostIds: null,
     view: 'feed',
     trace: null,
+    lastAction: null,
     nextTraceId: 0,
     notice: null,
   }
@@ -72,38 +79,50 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
   switch (action.type) {
     case 'toggleLike': {
       if (state.view !== 'feed' || !posts.some((post) => post.id === action.postId)) return state
-      const intent = state.likedPostIds.includes(action.postId) ? 'remove' : 'add'
+      const intent: InteractionTrace['intent'] = state.likedPostIds.includes(action.postId) ? 'remove' : 'add'
+      const interaction = { kind: 'like' as const, targetId: action.postId, intent }
       return {
         ...state,
         likedPostIds: toggleValue(state.likedPostIds, action.postId),
         trace: state.xrayEnabled ? {
-          id: state.nextTraceId + 1, kind: 'like', targetId: action.postId, intent, stepIndex: 0,
+          id: state.nextTraceId + 1, ...interaction, stepIndex: 0,
         } : null,
+        lastAction: state.xrayEnabled ? interaction : null,
         nextTraceId: state.nextTraceId + 1,
         notice: null,
       }
     }
     case 'toggleFollow': {
       if (state.view !== 'feed' || !posts.some((post) => post.author === action.author)) return state
-      const intent = state.followedAuthors.includes(action.author) ? 'remove' : 'add'
+      const intent: InteractionTrace['intent'] = state.followedAuthors.includes(action.author) ? 'remove' : 'add'
+      const interaction = { kind: 'follow' as const, targetId: action.author, intent }
       return {
         ...state,
         followedAuthors: toggleValue(state.followedAuthors, action.author),
         trace: state.xrayEnabled ? {
-          id: state.nextTraceId + 1, kind: 'follow', targetId: action.author, intent, stepIndex: 0,
+          id: state.nextTraceId + 1, ...interaction, stepIndex: 0,
         } : null,
+        lastAction: state.xrayEnabled ? interaction : null,
         nextTraceId: state.nextTraceId + 1,
         notice: null,
       }
     }
     case 'toggleXray':
       if (state.view !== 'feed') return state
-      return { ...state, xrayEnabled: !state.xrayEnabled, trace: null }
+      return { ...state, xrayEnabled: !state.xrayEnabled, trace: null, lastAction: null }
     case 'recommend': {
       if (state.view !== 'feed') return state
       const interests = getInterests(state.likedPostIds, state.followedAuthors)
+      const lastAction: ProgrammingAction = {
+        kind: 'recommend', interests, likeCount: state.likedPostIds.length, followCount: state.followedAuthors.length,
+      }
       if (!interests.some(({ score }) => score > 0)) {
-        return { ...state, notice: 'Para mejorar el feed, da Me gusta o sigue a un creador primero.', trace: null }
+        return {
+          ...state,
+          notice: 'Para mejorar el feed, da Me gusta o sigue a un creador primero.',
+          trace: null,
+          lastAction: state.xrayEnabled ? lastAction : null,
+        }
       }
       return {
         ...state,
@@ -111,6 +130,7 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
         trace: state.xrayEnabled ? {
           id: state.nextTraceId + 1, kind: 'recommend', interests, stepIndex: 0,
         } : null,
+        lastAction: state.xrayEnabled ? lastAction : null,
         nextTraceId: state.nextTraceId + 1,
         notice: null,
       }
@@ -122,7 +142,7 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
       return { ...state, trace: next >= getTraceRoute(trace).length ? null : { ...trace, stepIndex: next } }
     }
     case 'openOverview':
-      return { ...state, view: 'overview', trace: null }
+      return { ...state, view: 'overview', trace: null, lastAction: null }
     case 'closeOverview':
       return { ...state, view: 'feed' }
     case 'reset':

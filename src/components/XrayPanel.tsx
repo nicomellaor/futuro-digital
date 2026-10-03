@@ -1,6 +1,9 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { posts } from '../data/posts'
-import { currentUser, getTraceRoute, type ArchitectureNode, type Trace } from '../state/demo'
+import { currentUser, getTraceRoute, type ArchitectureNode, type ProgrammingAction, type Trace } from '../state/demo'
+import { ProgrammingPanel } from './ProgrammingPanel'
+
+type PanelTab = 'architecture' | 'programming'
 
 const nodes: { id: ArchitectureNode | 'user'; title: string; description: string; symbol: string }[] = [
   { id: 'user', title: 'Usuario', description: 'Toca una publicación', symbol: 'A' },
@@ -42,13 +45,30 @@ function getDataRow(trace: Trace): string {
   return `Alex | ${post?.category ?? 'publicación'} | ♥`
 }
 
-export function XrayPanel({ trace, onNext }: { trace: Trace | null; onNext: (traceId: number) => void }) {
+export function XrayPanel({ trace, lastAction, onNext }: {
+  trace: Trace | null
+  lastAction: ProgrammingAction | null
+  onNext: (traceId: number) => void
+}) {
+  const [tab, setTab] = useState<PanelTab>('programming')
+  const tabRefs = useRef<Record<PanelTab, HTMLButtonElement | null>>({ architecture: null, programming: null })
   const headingRef = useRef<HTMLHeadingElement>(null)
   const previousTrace = useRef<Trace | null>(null)
   useEffect(() => {
-    if (previousTrace.current && !trace) headingRef.current?.focus()
+    if (previousTrace.current && !trace && tab === 'architecture') headingRef.current?.focus()
     previousTrace.current = trace
-  }, [trace])
+  }, [trace, tab])
+
+  function handleTabKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+    const nextTab = event.key === 'ArrowRight' || event.key === 'ArrowLeft'
+      ? tab === 'architecture' ? 'programming' : 'architecture'
+      : event.key === 'End' ? 'architecture'
+      : event.key === 'Home' ? 'programming' : null
+    if (!nextTab) return
+    event.preventDefault()
+    setTab(nextTab)
+    tabRefs.current[nextTab]?.focus()
+  }
 
   const route = trace ? getTraceRoute(trace) : []
   const active = trace ? route[trace.stepIndex] : null
@@ -56,46 +76,70 @@ export function XrayPanel({ trace, onNext }: { trace: Trace | null; onNext: (tra
   const dataVisible = trace?.stepIndex === 3
 
   return (
-    <aside className="xray" aria-label="Mapa del Modo Rayos X">
+    <aside className={`xray ${tab === 'programming' ? 'xray--programming' : ''}`} aria-label="Modo Rayos X">
       <div className="xray__header">
         <span className="xray__mark" aria-hidden="true">◎</span>
         <div><h2 ref={headingRef} tabIndex={-1}>Así funciona</h2><p>Lo que ocurre detrás de cada toque.</p></div>
       </div>
 
-      <ol className="xray__diagram" aria-label="Usuario, Frontend, API, Backend, Base de datos y Algoritmo">
-        {nodes.map((node) => {
-          const isActive = active === node.id
-          const isVisited = node.id === 'user' ? Boolean(trace) : visited.includes(node.id as ArchitectureNode)
-          return <li
-            className={`xray__node ${isActive ? 'xray__node--active' : isVisited ? 'xray__node--visited' : ''}`}
-            aria-current={isActive ? 'step' : undefined}
-            key={node.id}
+      <div className="xray__tabs" role="tablist" aria-label="Perspectiva de Rayos X">
+        {(['programming', 'architecture'] as const).map((name) => (
+          <button
+            key={name}
+            ref={(element) => { tabRefs.current[name] = element }}
+            type="button"
+            role="tab"
+            id={`xray-tab-${name}`}
+            aria-controls={`xray-panel-${name}`}
+            aria-selected={tab === name}
+            tabIndex={tab === name ? 0 : -1}
+            onClick={() => setTab(name)}
+            onKeyDown={handleTabKeyDown}
           >
-            <span className="xray__symbol" aria-hidden="true">{node.symbol}</span>
-            <span className="xray__node-copy"><strong>{node.title}</strong><small>{node.description}</small></span>
-            {node.id === 'database' && dataVisible && <span className="xray__data-row" role="status">
-              {trace.kind !== 'recommend' && trace.intent === 'remove' ? 'Se eliminó: ' : ''}{getDataRow(trace)}
-            </span>}
-            {node.id === 'algorithm' && trace?.kind === 'recommend' && trace.stepIndex === 4 && <span className="xray__interests">
-              {trace.interests.filter(({ score }) => score > 0).map(({ category, score }) => `${category} +${score}`).join('  ·  ')}
-            </span>}
-          </li>
-        })}
-      </ol>
-
-      {trace && <div className="xray__explanation">
-        <div aria-live="polite" aria-atomic="true">
-          <span className="xray__step">{active === 'frontend' && trace.stepIndex === route.length - 1 ? 'Respuesta al frontend' : nodes.find((node) => node.id === active)?.title}</span>
-          <p key={`${trace.id}-${trace.stepIndex}`}>{getCopy(trace)}</p>
-        </div>
-        <div className="xray__controls">
-          <span>Paso {trace.stepIndex + 1} de {route.length}</span>
-          <button type="button" onClick={() => onNext(trace.id)}>
-            {trace.stepIndex === route.length - 1 ? 'Finalizar' : 'Siguiente'}
-            <span aria-hidden="true"> →</span>
+            {name === 'architecture' ? 'Arquitectura' : 'Programación'}
           </button>
-        </div>
-      </div>}
+        ))}
+      </div>
+
+      <div id="xray-panel-architecture" role="tabpanel" aria-labelledby="xray-tab-architecture" tabIndex={0} hidden={tab !== 'architecture'}>
+        <ol className="xray__diagram" aria-label="Usuario, Frontend, API, Backend, Base de datos y Algoritmo">
+          {nodes.map((node) => {
+            const isActive = active === node.id
+            const isVisited = node.id === 'user' ? Boolean(trace) : visited.includes(node.id as ArchitectureNode)
+            return <li
+              className={`xray__node ${isActive ? 'xray__node--active' : isVisited ? 'xray__node--visited' : ''}`}
+              aria-current={isActive ? 'step' : undefined}
+              key={node.id}
+            >
+              <span className="xray__symbol" aria-hidden="true">{node.symbol}</span>
+              <span className="xray__node-copy"><strong>{node.title}</strong><small>{node.description}</small></span>
+              {node.id === 'database' && dataVisible && <span className="xray__data-row" role="status">
+                {trace.kind !== 'recommend' && trace.intent === 'remove' ? 'Se eliminó: ' : ''}{getDataRow(trace)}
+              </span>}
+              {node.id === 'algorithm' && trace?.kind === 'recommend' && trace.stepIndex === 4 && <span className="xray__interests">
+                {trace.interests.filter(({ score }) => score > 0).map(({ category, score }) => `${category} +${score}`).join('  ·  ')}
+              </span>}
+            </li>
+          })}
+        </ol>
+
+        {trace && <div className="xray__explanation">
+          <div aria-live="polite" aria-atomic="true">
+            <span className="xray__step">{active === 'frontend' && trace.stepIndex === route.length - 1 ? 'Respuesta al frontend' : nodes.find((node) => node.id === active)?.title}</span>
+            <p key={`${trace.id}-${trace.stepIndex}`}>{getCopy(trace)}</p>
+          </div>
+          <div className="xray__controls">
+            <span>Paso {trace.stepIndex + 1} de {route.length}</span>
+            <button type="button" onClick={() => onNext(trace.id)}>
+              {trace.stepIndex === route.length - 1 ? 'Finalizar' : 'Siguiente'}
+              <span aria-hidden="true"> →</span>
+            </button>
+          </div>
+        </div>}
+      </div>
+      <div id="xray-panel-programming" role="tabpanel" aria-labelledby="xray-tab-programming" tabIndex={lastAction ? 0 : -1} hidden={tab !== 'programming'}>
+        <ProgrammingPanel action={lastAction} />
+      </div>
     </aside>
   )
 }

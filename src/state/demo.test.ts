@@ -100,6 +100,22 @@ describe('acciones libres y estado de la sesión', () => {
     expect(state.trace).toBeNull()
     expect(state.recommendedPostIds?.[1]).toBe('pixel-art')
   })
+
+  it('conserva la última regla tras Finalizar y muestra ausencia de señales sin recorrido falso', () => {
+    let state = demoReducer(createInitialState(), { type: 'toggleXray' })
+    state = demoReducer(state, { type: 'toggleLike', postId: 'mundos-abiertos' })
+    state = advanceAll(state)
+    expect(state.trace).toBeNull()
+    expect(state.lastAction).toMatchObject({ kind: 'like', targetId: 'mundos-abiertos', intent: 'add' })
+    state = demoReducer(state, { type: 'toggleLike', postId: 'mundos-abiertos' })
+    expect(state.lastAction).toMatchObject({ kind: 'like', intent: 'remove' })
+    state = demoReducer(state, { type: 'recommend' })
+    expect(state.trace).toBeNull()
+    expect(state.lastAction).toMatchObject({ kind: 'recommend', likeCount: 0, followCount: 0 })
+    state = demoReducer(state, { type: 'toggleXray' })
+    expect(state.lastAction).toBeNull()
+    expect(state.likedPostIds).toEqual([])
+  })
 })
 
 describe('reglas de recomendaciones', () => {

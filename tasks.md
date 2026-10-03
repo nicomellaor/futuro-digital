@@ -60,6 +60,7 @@ Referencia: `spec.md`. El feed social de una columna y el Modo Rayos X libre ya 
 - [x] Si no hay señales, mantener el feed y orientar a dar Me gusta o seguir a un creador, sin iniciar un recorrido falso.
 - [x] Adaptar `Overview.tsx` al tema claro y abrirlo desde un control visible **siempre**, sin requisito de cuatro misiones; permitir volver sin perder datos y reiniciar todo desde el header.
 - [x] Usar iconos SVG coherentes en el mapa completo y retirar `overview__note`, `overview__back` y el botón «Reiniciar para otra charla» del cuerpo.
+- [x] Situar Base de datos debajo de Backend y Algoritmo / IA debajo de Base de datos en el mapa completo; permitir que el texto final ocupe todo el ancho.
 - [x] Mantener la distinción pedagógica entre algoritmo de reglas e IA opcional; no atribuir a IA la personalización de esta demo.
 
 **Comprobar:** la personalización refleja interacciones realizadas en cualquier orden; el mapa completo está disponible desde el inicio y el regreso conserva el estado.
@@ -72,4 +73,16 @@ Referencia: `spec.md`. El feed social de una columna y el Modo Rayos X libre ya 
 - [x] Actualizar `README.md` y `spec.md` con el control **Siguiente/Finalizar**, la ausencia de notas permanentes y la navegación desde el header.
 - [x] Ejecutar `npm test` y `npm run build`; corregir los fallos antes de marcar el rediseño como completado.
 
-**Fuera de alcance:** backend real, cuentas, almacenamiento permanente, multimedia, Guardar, Actualizar feed, IA simulada, editor de código, misiones, recorrido automático y tablas permanentes.
+**Fuera de alcance:** backend real, cuentas, almacenamiento permanente, multimedia, Guardar, Actualizar feed, IA simulada, editor de código editable o ejecutable, misiones, recorrido automático y tablas permanentes.
+
+## 8. Programación dentro de Rayos X
+
+- [x] Definir en `spec.md` el objetivo didáctico, las dos pestañas, los casos de pseudocódigo y la dinámica del taller; actualizar la guía de uso en `README.md`.
+- [x] Añadir pestañas accesibles **Programación** y **Arquitectura** dentro de `XrayPanel.tsx`, dejando Programación primera y seleccionada al entrar. Mantener un solo control Rayos X en el header y el feed interactivo al lado del panel.
+- [x] Mostrar únicamente «Realiza una acción para continuar.» hasta la primera acción; después, pseudocódigo contextual de solo lectura con apariencia de editor (archivo y líneas numeradas) para **Datos**, **Condición**, **Instrucciones** y **Prueba**. Usar asignaciones, `if` con dos puntos, indentación, comentarios `#` y nombres explicativos en español.
+- [x] Cubrir Me gusta/Quitar Me gusta y Seguir/Dejar de seguir con condiciones y efectos coherentes con la publicación o autor; cubrir Recomendaciones (+1 por Me gusta, +2 por categoría de autor seguido, empates estables) y el caso sin señales, sin inventar intereses ni servicios reales.
+- [x] Reutilizar el estado y la última acción: al alternar pestañas conservar interacciones y etapa manual de Arquitectura; al pulsar **Finalizar**, devolver el diagrama a reposo y conservar el último ejemplo en Programación. Una acción nueva reemplaza solo la explicación; cerrar Rayos X borra las explicaciones sin deshacer acciones y reiniciar restablece también los datos. No convertir **Prueba** en una evaluación automática ni añadir un editor ejecutable.
+- [x] Adaptar pestañas y pseudocódigo al panel lateral de laptop/proyector y a su versión móvil; comprobar foco, teclado, contraste, desplazamiento y movimiento reducido.
+- [x] Probar ambos sentidos de Me gusta y Seguir, recomendaciones con y sin señales, cambio de pestaña a mitad del recorrido, acciones rápidas, cierre y reinicio. Actualizar la guía de uso de `README.md` y ejecutar `npm test` y `npm run build` antes de marcar estas tareas como completadas.
+
+**Comprobar:** el público puede predecir una regla, probarla en el feed y ver datos/condiciones/instrucciones/pruebas acordes a su acción, sin perder el avance manual de Arquitectura ni confundir la simulación con un backend real.

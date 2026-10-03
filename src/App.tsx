@@ -89,7 +89,7 @@ function App() {
               ))}
             </div>
           </section>
-          {state.xrayEnabled && <XrayPanel trace={state.trace} onNext={(traceId) => dispatch({ type: 'advanceTrace', traceId })} />}
+          {state.xrayEnabled && <XrayPanel trace={state.trace} lastAction={state.lastAction} onNext={(traceId) => dispatch({ type: 'advanceTrace', traceId })} />}
         </main>
       )}
     </div>
