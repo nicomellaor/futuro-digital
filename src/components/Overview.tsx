@@ -15,10 +15,9 @@ export function Overview() {
         <div className="architecture__api"><span aria-hidden="true">↓</span><span className="architecture__api-icon"><ArchitectureIcon name="api" /></span><strong>API</strong><span>Comunica las piezas</span><span aria-hidden="true">↓</span></div>
         <div className="architecture__node architecture__node--back"><span className="architecture__icon"><ArchitectureIcon name="backend" /></span><strong>Backend</strong><small>Aplica las reglas</small></div>
         <span className="architecture__arrow" aria-hidden="true">↓</span>
-        <div className="architecture__branches">
-          <div className="architecture__node architecture__node--data"><span className="architecture__icon"><ArchitectureIcon name="database" /></span><strong>Base de datos</strong><small>Recuerda tus acciones</small></div>
-          <div className="architecture__node architecture__node--algorithm"><span className="architecture__icon"><ArchitectureIcon name="algorithm" /></span><strong>Algoritmo / IA</strong><small>Aquí usamos reglas; la IA sería opcional</small></div>
-        </div>
+        <div className="architecture__node architecture__node--data"><span className="architecture__icon"><ArchitectureIcon name="database" /></span><strong>Base de datos</strong><small>Recuerda tus acciones</small></div>
+        <span className="architecture__arrow" aria-hidden="true">↓</span>
+        <div className="architecture__node architecture__node--algorithm"><span className="architecture__icon"><ArchitectureIcon name="algorithm" /></span><strong>Algoritmo / IA</strong><small>Aquí usamos reglas; la IA sería opcional</small></div>
       </section>
       <div className="overview__closing">
         <p>Programar significa construir las reglas y sistemas que hacen posible todo esto.</p>

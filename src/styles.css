@@ -117,9 +117,8 @@ button:focus-visible, a:focus-visible, h1:focus-visible { outline: 3px solid var
 .architecture__api-icon svg { width: 25px; height: 25px; }
 .architecture__api strong { padding: 3px 12px; border: 1px solid #b9c6ee; border-radius: 6px; background: var(--blue-soft); color: var(--blue); font-size: 14px; }
 .architecture__api span:first-child, .architecture__api span:last-child { color: var(--blue); font-size: 22px; line-height: 1; }
-.architecture__branches { display: flex; justify-content: center; gap: 20px; width: 100%; }
 .overview__closing { margin-top: 28px; }
-.overview__closing p { max-width: 520px; margin: 0; font: 800 clamp(20px, 2.5vw, 27px)/1.25 'Trebuchet MS', system-ui, sans-serif; }
+.overview__closing p { width: 100%; margin: 0; font: 800 clamp(20px, 2.5vw, 27px)/1.25 'Trebuchet MS', system-ui, sans-serif; }
 
 @media (max-width: 950px) {
   .main-layout--xray { grid-template-columns: minmax(0, 560px); }
@@ -157,9 +156,6 @@ button:focus-visible, a:focus-visible, h1:focus-visible { outline: 3px solid var
   .main-layout--xray .xray__explanation p { font-size: 12px; }
   .overview { padding: 20px 14px 50px; }
   .architecture { padding: 15px 10px; }
-  .architecture__branches { gap: 10px; }
-  .architecture__branches .architecture__node { padding: 10px 4px; }
-  .architecture__branches .architecture__node strong { font-size: 13px; }
 }
 
 @media (max-width: 390px) {
