@@ -48,7 +48,7 @@ Usuario → Frontend → API → Backend ┬→ Base de datos
                                    └→ Algoritmo → Frontend
 ```
 
-En la pestaña Arquitectura, el diagrama muestra brevemente qué representa cada pieza. Cuando no hay acción en curso permanece visible en reposo, sin un recuadro de explicación vacío ni una nota fija al pie. Al interactuar, se ilumina la etapa actual. **No** muestra misiones, barras de progreso obligatorias ni tablas permanentes. El usuario puede salir y volver a Rayos X sin perder sus interacciones.
+En la pestaña Arquitectura, el diagrama muestra brevemente qué representa cada pieza. Base de datos y Algoritmo se presentan como dos ramas que salen de Backend, con flechas separadas y sin flecha de Base de datos hacia Algoritmo. Cuando no hay acción en curso permanece visible en reposo, sin un recuadro de explicación vacío ni una nota fija al pie. Al interactuar, se ilumina la etapa actual. **No** muestra misiones, barras de progreso obligatorias ni tablas permanentes. El usuario puede salir y volver a Rayos X sin perder sus interacciones.
 
 El diagrama representa sistemas simulados localmente, como se explica en la documentación del proyecto; no necesita una advertencia permanente en la interfaz.
 
@@ -57,7 +57,7 @@ El diagrama representa sistemas simulados localmente, como se explica en la docu
 Una pulsación produce inmediatamente el cambio que espera el usuario. Si Rayos X está activo, Programación explica la acción y el recorrido de Arquitectura comienza en **Frontend**, disponible al cambiar a esa pestaña. El presentador avanza a su ritmo mediante un botón discreto **Siguiente** dentro de Arquitectura; en la última etapa el botón dice **Finalizar**. Al finalizar, el diagrama vuelve al reposo y la explicación arquitectónica desaparece. No hay temporizador ni avance automático.
 
 - El flujo de Me gusta y Seguir recorre **Frontend → API → Backend → Base de datos → respuesta al Frontend**.
-- Recomendaciones recorre **Frontend → API → Backend → Base de datos → Algoritmo → nuevo feed en Frontend**.
+- Recomendaciones explica en ese orden temporal **Frontend → API → Backend → consulta a Base de datos → Algoritmo del Backend → nuevo feed en Frontend**. El orden de la explicación no representa una flecha de Base de datos a Algoritmo en el mapa.
 - La respuesta y el resultado visible deben corresponder a la publicación o autor que se pulsó.
 - Pulsaciones rápidas conservan **todos** sus efectos sobre los datos; una acción nueva sustituye la explicación anterior y comienza otra vez en Frontend. No se bloquean los botones del feed.
 - Al desactivar Rayos X se cierra la explicación, no se deshacen las acciones. Reiniciar borra el estado de la sesión y cualquier recorrido pendiente.
@@ -91,7 +91,7 @@ El recorrido destaca la consulta de datos y el algoritmo hasta el nuevo feed. No
 
 ## 10. Mapa completo opcional
 
-**Ver mapa completo** está disponible en cualquier momento, sin desbloqueos ni requisito de completar acciones. Presenta Usuario, Frontend, API, Backend, Base de datos y Algoritmo / IA con **iconos SVG de línea, no emojis**, y definiciones muy breves. Base de datos se sitúa justo debajo de Backend y Algoritmo / IA debajo de Base de datos, con las flechas alineadas entre nodos. La distinción entre reglas e IA opcional se explica en el nodo correspondiente, sin una nota separada debajo del diagrama.
+**Ver mapa completo** está disponible en cualquier momento, sin desbloqueos ni requisito de completar acciones. Presenta Usuario, Frontend, API, Backend, Base de datos y Algoritmo / IA con **iconos SVG de línea, no emojis**, y definiciones muy breves. Backend conecta mediante dos flechas independientes con Base de datos y Algoritmo / IA, ubicados en paralelo: no se dibuja una conexión Base de datos → Algoritmo. La distinción entre reglas e IA opcional se explica en el nodo correspondiente, sin una nota separada debajo del diagrama.
 
 Mensaje de síntesis:
 

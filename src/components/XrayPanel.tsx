@@ -107,7 +107,7 @@ export function XrayPanel({ trace, lastAction, onNext }: {
             const isActive = active === node.id
             const isVisited = node.id === 'user' ? Boolean(trace) : visited.includes(node.id as ArchitectureNode)
             return <li
-              className={`xray__node ${isActive ? 'xray__node--active' : isVisited ? 'xray__node--visited' : ''}`}
+              className={`xray__node xray__node--${node.id} ${isActive ? 'xray__node--active' : isVisited ? 'xray__node--visited' : ''}`}
               aria-current={isActive ? 'step' : undefined}
               key={node.id}
             >

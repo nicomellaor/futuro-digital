@@ -82,11 +82,14 @@ button:focus-visible, a:focus-visible, h1:focus-visible { outline: 3px solid var
 .xray__tabs button { flex: 1; min-height: 44px; padding: 9px 6px 7px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--muted); font-size: 13px; font-weight: 650; }
 .xray__tabs button[aria-selected='true'] { border-bottom-color: var(--blue); color: var(--blue); font-weight: 800; }
 .xray [role='tabpanel']:focus-visible { outline: 3px solid var(--blue); outline-offset: -3px; }
-.xray__diagram { display: grid; gap: 10px; margin: 16px 0; padding: 0; list-style: none; }
+.xray__diagram { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 16px 0; padding: 0; list-style: none; }
 .xray__node { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: center; column-gap: 10px; min-height: 54px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
-.xray__node:not(:last-child)::after { content: '↓'; position: absolute; z-index: 1; left: 25px; bottom: -12px; color: #8d98a4; font-size: 14px; line-height: 1; }
-.xray__node:nth-last-child(2)::after { content: '↘'; color: #8d98a4; }
-.xray__node:last-child { margin-left: 24px; border-style: dashed; }
+.xray__node:nth-child(-n+4) { grid-column: 1 / -1; }
+.xray__node:nth-child(-n+3)::after { content: '↓'; position: absolute; z-index: 1; left: 25px; bottom: -12px; color: #8d98a4; font-size: 14px; line-height: 1; }
+.xray__node--backend { margin-bottom: 14px; }
+.xray__node--database::before, .xray__node--algorithm::before { content: '↓'; position: absolute; top: -22px; left: 50%; color: #8d98a4; font-size: 18px; line-height: 1; transform: translateX(-50%); }
+.xray__node--database, .xray__node--algorithm { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+.xray__node--algorithm { border-style: dashed; }
 .xray__node--visited { border-color: #bccbf0; background: #f8faff; }
 .xray__node--active { border-color: var(--blue); background: var(--blue-soft); box-shadow: inset 3px 0 var(--blue); }
 .xray__symbol { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 6px; background: #f0f2f4; color: #535c65; font-size: 20px; font-weight: 750; }
@@ -136,6 +139,9 @@ button:focus-visible, a:focus-visible, h1:focus-visible { outline: 3px solid var
 .architecture__api-icon svg { width: 25px; height: 25px; }
 .architecture__api strong { padding: 3px 12px; border: 1px solid #b9c6ee; border-radius: 6px; background: var(--blue-soft); color: var(--blue); font-size: 14px; }
 .architecture__api span:first-child, .architecture__api span:last-child { color: var(--blue); font-size: 22px; line-height: 1; }
+.architecture__branches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; width: min(100%, 530px); }
+.architecture__branches .architecture__node { width: 100%; height: 100%; }
+.architecture__branch-arrow { display: grid; place-items: center; height: 31px; color: var(--blue); font-size: 23px; line-height: 1; }
 .overview__closing { margin-top: 28px; }
 .overview__closing p { width: 100%; margin: 0; font: 800 clamp(20px, 2.5vw, 27px)/1.25 'Trebuchet MS', system-ui, sans-serif; }
 
@@ -143,10 +149,12 @@ button:focus-visible, a:focus-visible, h1:focus-visible { outline: 3px solid var
   .main-layout--xray { grid-template-columns: minmax(0, 560px); }
   .main-layout--xray .xray { grid-row: 1; position: sticky; top: 78px; z-index: 4; max-height: 290px; }
   .main-layout--xray .xray.xray--programming { position: static; max-height: none; overflow: visible; }
-  .main-layout--xray .xray__diagram { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin: 10px 0; }
+  .main-layout--xray .xray__diagram { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px 5px; margin: 10px 0; }
   .main-layout--xray .xray__node { grid-template-columns: 1fr; min-height: 38px; padding: 5px 7px; }
-  .main-layout--xray .xray__node:not(:last-child)::after { display: none; }
-  .main-layout--xray .xray__node:last-child { margin-left: 0; }
+  .main-layout--xray .xray__node:nth-child(-n+3) { grid-column: span 2; }
+  .main-layout--xray .xray__node--backend { grid-column: 1 / -1; }
+  .main-layout--xray .xray__node--database, .main-layout--xray .xray__node--algorithm { grid-column: span 3; }
+  .main-layout--xray .xray__node:nth-child(-n+3)::after { display: none; }
   .main-layout--xray .xray__symbol, .main-layout--xray .xray__node-copy small { display: none; }
   .main-layout--xray .xray__node-copy strong { font-size: 12px; }
   .main-layout--xray .xray__data-row, .main-layout--xray .xray__interests { font-size: 11px; }
@@ -176,6 +184,9 @@ button:focus-visible, a:focus-visible, h1:focus-visible { outline: 3px solid var
   .main-layout--xray .xray__explanation p { font-size: 12px; }
   .overview { padding: 20px 14px 50px; }
   .architecture { padding: 15px 10px; }
+  .architecture__branches { column-gap: 10px; }
+  .architecture__branches .architecture__node { padding: 10px 4px; }
+  .architecture__branches .architecture__node strong { font-size: 13px; }
 }
 
 @media (max-width: 390px) {

@@ -60,7 +60,7 @@ Referencia: `spec.md`. El feed social de una columna y el Modo Rayos X libre ya 
 - [x] Si no hay señales, mantener el feed y orientar a dar Me gusta o seguir a un creador, sin iniciar un recorrido falso.
 - [x] Adaptar `Overview.tsx` al tema claro y abrirlo desde un control visible **siempre**, sin requisito de cuatro misiones; permitir volver sin perder datos y reiniciar todo desde el header.
 - [x] Usar iconos SVG coherentes en el mapa completo y retirar `overview__note`, `overview__back` y el botón «Reiniciar para otra charla» del cuerpo.
-- [x] Situar Base de datos debajo de Backend y Algoritmo / IA debajo de Base de datos en el mapa completo; permitir que el texto final ocupe todo el ancho.
+- [x] Ubicar Base de datos y Algoritmo / IA en ramas paralelas que salen de Backend mediante flechas independientes, tanto en Rayos X como en el mapa completo; permitir que el texto final ocupe todo el ancho.
 - [x] Mantener la distinción pedagógica entre algoritmo de reglas e IA opcional; no atribuir a IA la personalización de esta demo.
 
 **Comprobar:** la personalización refleja interacciones realizadas en cualquier orden; el mapa completo está disponible desde el inicio y el regreso conserva el estado.
